@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Subspedia</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="section_all_series">Tutte le serie</string>
+    <string name="section_translating_series">In Traduzione</string>
+    <string name="title_activity_serie_details">SerieDetailsActivity</string>
+
+
+    <string name="season">Stagione %d</string>
+    <string name="title_activity_scrolling">ScrollingActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="loading_series">Caricamento serie…</string>
+    <string name="loading_subtitles">Caricamento sottotitoli…</string>
+    <string name="loading">Caricamento…</string>
+</resources>
