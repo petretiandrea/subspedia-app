@@ -2,11 +2,9 @@ package com.andreapetreti.subspedia.ui.fragment;
 
 
 import android.app.SearchManager;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -17,23 +15,15 @@ import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
-import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
-import com.andreapetreti.subspedia.ui.adapter.ItemClickListener;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
-import com.jaeger.library.StatusBarUtil;
-
-import java.util.List;
 
 import static android.content.Context.SEARCH_SERVICE;
 
@@ -101,6 +91,7 @@ public class AllSeriesFragment extends Fragment {
        // refreshLayout.setOnRefreshListener(seriesViewModel::forceRefresh);
 
         mSerieListAdapter.setItemClickListener((view, adapterPosition) -> {
+            //Intent intent = SerieDetailsActivity.obtainIntent(getActivity(), mSerieListAdapter.itemAt(adapterPosition));
             Intent intent = SerieDetailsActivity.obtainIntent(getActivity(), mSerieListAdapter.itemAt(adapterPosition));
             startActivity(intent);
         });

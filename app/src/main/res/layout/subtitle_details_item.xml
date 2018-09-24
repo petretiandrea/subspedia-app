@@ -3,7 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="88dp">
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:layout_height="88dp"
+    android:focusable="true">
 
     <ImageView
         android:id="@+id/thubSub"
@@ -26,6 +29,8 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:fontFamily="sans-serif"
+        android:lines="1"
+        android:maxLines="1"
         android:text="TextView"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         app:layout_constraintEnd_toStartOf="@+id/imageView4"

@@ -33,4 +33,6 @@ public class SubtitleViewModel extends AndroidViewModel {
     public LiveData<Resource<List<Subtitle>>> getLastSubtitles() {
         return mSubtitlesRepo.getLastSubtitles();
     }
+
+
 }

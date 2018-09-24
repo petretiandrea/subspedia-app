@@ -32,7 +32,7 @@ public class Serie implements Parcelable {
     @SerializedName("anno")
     private int mYear;
 
-    @Ignore
+    
     private boolean mFavorite;
 
     public Serie(){}

@@ -18,4 +18,14 @@
     <string name="loading_series">Caricamento serie…</string>
     <string name="loading_subtitles">Caricamento sottotitoli…</string>
     <string name="loading">Caricamento…</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_3">Tab 3</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <string name="downloading_message">Download in corso…</string>
+    <string name="download">Download</string>
+    <string name="cancel">Annulla</string>
+    <string name="error_download">Errore durante il download</string>
+    <string name="download_complete">Download completato</string>
 </resources>

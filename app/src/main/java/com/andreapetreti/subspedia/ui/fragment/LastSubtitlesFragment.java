@@ -60,6 +60,7 @@ public class LastSubtitlesFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_last_subtitles, container, false);
 
         mLoadingBarMessage = rootView.findViewById(R.id.progressMessage);
+        mLoadingBarMessage.getProgressBar().setIndeterminate(true);
 
         mSwipeRefreshLayout  = rootView.findViewById(R.id.swiperefresh);
         mSubtitleListAdapter = new SubtitleListAdapter(getActivity());

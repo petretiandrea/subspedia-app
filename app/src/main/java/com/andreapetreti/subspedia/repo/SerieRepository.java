@@ -104,7 +104,7 @@ public class SerieRepository {
         }.asLiveData();
     }
 
-
-
-
+    public LiveData<Serie> getSerie(int idSerie) {
+        return mSerieDao.getSerie(idSerie);
+    }
 }

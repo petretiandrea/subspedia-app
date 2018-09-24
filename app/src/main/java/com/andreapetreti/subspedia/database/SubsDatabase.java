@@ -1,22 +1,18 @@
 package com.andreapetreti.subspedia.database;
 
 import android.arch.persistence.db.SupportSQLiteDatabase;
-import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.room.Database;
-import android.arch.persistence.room.DatabaseConfiguration;
-import android.arch.persistence.room.InvalidationTracker;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.andreapetreti.subspedia.model.FavouriteSerie;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.SerieTranslating;
 import com.andreapetreti.subspedia.model.Subtitle;
 
-@Database(entities = {Serie.class, SerieTranslating.class, Subtitle.class, FavouriteSerie.class}, version = 7)
+@Database(entities = {Serie.class, SerieTranslating.class, Subtitle.class}, version = 8)
 public abstract class SubsDatabase extends RoomDatabase {
 
     private static final String TAG = SubsDatabase.class.getName();

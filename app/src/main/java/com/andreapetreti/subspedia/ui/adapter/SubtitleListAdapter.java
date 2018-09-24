@@ -37,7 +37,7 @@ public class SubtitleListAdapter extends RecyclerListAdapter<Subtitle, SubtitleL
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SubtitleViewHolder holder, int position) {
+    protected void onBindVHolder(@NonNull SubtitleViewHolder holder, int position) {
         Subtitle sub = getList().get(position);
 
         mPicasso.load(sub.getSubtitleImage()).fit().centerCrop(Gravity.CENTER).into(holder.mThubSub);
@@ -47,7 +47,6 @@ public class SubtitleListAdapter extends RecyclerListAdapter<Subtitle, SubtitleL
                 sub.getEpisodeNumber(),
                 sub.getSeasonNumber(),
                 sub.getDate()));
-
     }
 
     class SubtitleViewHolder extends RecyclerView.ViewHolder {

@@ -87,7 +87,6 @@ public class SubtitlesRepo {
         }.asLiveData();
     }
 
-
     public LiveData<Resource<List<Subtitle>>> getLastSubtitles() {
         MutableLiveData<Resource<List<Subtitle>>> data = new MutableLiveData<>();
         AppExecutor.getInstance().getNetworkExecutor().execute(() ->

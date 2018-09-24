@@ -87,6 +87,7 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
                 serieViewHolder.txtCaption.setText(serie.getStatus());
 
             } else {
+                serieViewHolder.mFavourite.setImageResource((serie.isFavorite()) ? R.drawable.ic_star_orange_24dp : R.drawable.ic_star_border_orange_24dp);
                 serieViewHolder.txtTitle.setText(serie.getName());
                 serieViewHolder.txtCaption.setText(String.format(Locale.getDefault(), "%s - %d",
                         serie.getStatus(),
@@ -143,12 +144,14 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
         private ImageView mImageViewLogo;
         private TextView txtTitle;
         private TextView txtCaption;
+        private ImageView mFavourite;
 
         SerieViewHolder(@NonNull View itemView) {
             super(itemView);
             mImageViewLogo = itemView.findViewById(R.id.imageViewLogo);
             txtTitle = itemView.findViewById(R.id.txtTitle);
             txtCaption = itemView.findViewById(R.id.txtCaption);
+            mFavourite = itemView.findViewById(R.id.imgFavourite);
             itemView.setOnClickListener(this);
         }
 

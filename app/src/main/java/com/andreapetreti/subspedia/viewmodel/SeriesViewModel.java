@@ -30,4 +30,8 @@ public class SeriesViewModel extends AndroidViewModel {
     public LiveData<Resource<List<Serie>>> getAllSeries() {
         return mAllSeries;
     }
+
+    public LiveData<Serie> getSerie(int idSerie) {
+        return mSerieRepository.getSerie(idSerie);
+    }
 }
