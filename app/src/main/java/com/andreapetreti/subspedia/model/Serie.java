@@ -1,7 +1,6 @@
 package com.andreapetreti.subspedia.model;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -32,7 +31,6 @@ public class Serie implements Parcelable {
     @SerializedName("anno")
     private int mYear;
 
-    
     private boolean mFavorite;
 
     public Serie(){}
@@ -85,20 +83,20 @@ public class Serie implements Parcelable {
         mYear = year;
     }
 
-    public boolean isFavorite() {
-        return mFavorite;
-    }
-
-    public void setFavorite(boolean favorite) {
-        mFavorite = favorite;
-    }
-
     public String getLinkImage() {
         return BASE_URL_IMAGE_LOGO + getIdSerie() + ".png";
     }
 
     public String getLinkBannerImage() {
         return BASE_URL_IMAGE_BANNER + getIdSerie() + ".jpg";
+    }
+
+    public boolean isFavorite() {
+        return mFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        mFavorite = favorite;
     }
 
     @Override

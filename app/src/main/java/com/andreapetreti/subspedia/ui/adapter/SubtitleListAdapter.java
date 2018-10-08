@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.andreapetreti.android_utils.PicassoSingleton;
 import com.andreapetreti.android_utils.adapter.RecyclerListAdapter;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.model.Subtitle;
@@ -23,10 +24,7 @@ public class SubtitleListAdapter extends RecyclerListAdapter<Subtitle, SubtitleL
 
     public SubtitleListAdapter(Context context) {
         super(context);
-        mPicasso = new Picasso.Builder(context)
-                .memoryCache(Cache.NONE)
-                .requestTransformer(Picasso.RequestTransformer.IDENTITY)
-                .build();
+        mPicasso = PicassoSingleton.getSharedInstance(context);
     }
 
     @NonNull

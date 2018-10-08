@@ -1,10 +1,14 @@
 package com.andreapetreti.subspedia.ui;
 
+import android.arch.lifecycle.Observer;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -17,6 +21,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,9 +29,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.andreapetreti.android_utils.PicassoSingleton;
 import com.andreapetreti.android_utils.adapter.ItemClickListener;
+import com.andreapetreti.subspedia.AppExecutor;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
+import com.andreapetreti.subspedia.database.SerieDao;
+import com.andreapetreti.subspedia.database.SubsDatabase;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.Subtitle;
 import com.andreapetreti.subspedia.ui.adapter.SubtitleListAdapter;
@@ -41,10 +50,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public class SerieDetailsActivity extends AppCompatActivity {
 
     private static final String KEY_SERIE = "serie";
+
+    private Serie mSerie;
 
     public static Intent obtainIntent(Context context, Serie serie) {
         Intent intent = new Intent(context, SerieDetailsActivity.class);
@@ -72,7 +84,7 @@ public class SerieDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_serie_details);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -83,28 +95,38 @@ public class SerieDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        Serie serie = Objects.requireNonNull(getIntent().getExtras()).getParcelable(KEY_SERIE);
+        mSerie = Objects.requireNonNull(getIntent().getExtras()).getParcelable(KEY_SERIE);
 
-        if(serie == null) {
+        if(mSerie == null) {
             finish();
             return;
         }
 
         /* Init the UI */
-        toolbar.setTitle(serie.getName());
-        ImageView extendImage = (ImageView) findViewById(R.id.header);
-        new Picasso.Builder(this)
-                .memoryCache(Cache.NONE)
-                .requestTransformer(Picasso.RequestTransformer.IDENTITY)
-                .build()
-                .load(serie.getLinkBannerImage())
+        toolbar.setTitle(mSerie.getName());
+
+        FloatingActionButton favoriteActionBtn = findViewById(R.id.floatingActionFavorite);
+        SerieDao serieDao = SubsDatabase.getDatabase(SerieDetailsActivity.this).serieDao();
+        serieDao.getSerie(mSerie.getIdSerie()).observe(this, serie -> {
+            mSerie = (serie != null) ? serie : mSerie;
+            favoriteActionBtn.setImageDrawable(
+                    ContextCompat.getDrawable(SerieDetailsActivity.this, mSerie.isFavorite() ? R.drawable.ic_star_white : R.drawable.ic_star_border_white));
+        });
+
+        favoriteActionBtn.setOnClickListener(v ->
+            AppExecutor.getInstance().getDiskExecutor().execute(() -> serieDao.setFavoriteSerie(mSerie.getIdSerie(), !mSerie.isFavorite())
+        ));
+
+        ImageView extendImage = findViewById(R.id.header);
+        PicassoSingleton.getSharedInstance(this)
+                .load(mSerie.getLinkBannerImage())
                 .fit()
                 .centerCrop(Gravity.CENTER)
                 .into(extendImage);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        Map<Integer, ArrayList<Subtitle>> subtitles = new HashMap<>();
+        SparseArray<ArrayList<Subtitle>> subtitles = new SparseArray<>();
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), subtitles);
 
         // Set up the ViewPager with the sections adapter.
@@ -121,7 +143,7 @@ public class SerieDetailsActivity extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
         SubtitleViewModel viewModel = new SubtitleViewModel(getApplication());
-        viewModel.getSubtitlesOf(serie.getIdSerie()).observe(this, listResource -> {
+        viewModel.getSubtitlesOf(mSerie.getIdSerie()).observe(this, listResource -> {
 
             if(listResource.status == Resource.Status.LOADING) {
                 progress.setVisibility(View.VISIBLE);
@@ -218,12 +240,12 @@ public class SerieDetailsActivity extends AppCompatActivity {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        SectionsPagerAdapter(FragmentManager fm, Map<Integer, ArrayList<Subtitle>> map) {
+        SectionsPagerAdapter(FragmentManager fm, SparseArray<ArrayList<Subtitle>> map) {
             super(fm);
             mMap = map;
         }
 
-        private Map<Integer, ArrayList<Subtitle>> mMap;
+        private SparseArray<ArrayList<Subtitle>> mMap;
 
         @Override
         public Fragment getItem(int position) {

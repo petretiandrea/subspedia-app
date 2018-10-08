@@ -5,9 +5,8 @@
     <string name="title_notifications">Notifications</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="section_all_series">Tutte le serie</string>
-    <string name="section_translating_series">In Traduzione</string>
+    <string name="section_all_series">Lista Serie</string>
+    <string name="section_translating_series">Traduzione</string>
     <string name="title_activity_serie_details">SerieDetailsActivity</string>
 
 
@@ -28,4 +27,6 @@
     <string name="cancel">Annulla</string>
     <string name="error_download">Errore durante il download</string>
     <string name="download_complete">Download completato</string>
+    <string name="title_section_last_sub">Ultimi</string>
+    <string name="add_favorite">Preferita</string>
 </resources>

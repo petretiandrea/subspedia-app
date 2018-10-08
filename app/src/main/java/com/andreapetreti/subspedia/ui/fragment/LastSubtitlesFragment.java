@@ -14,11 +14,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.andreapetreti.android_utils.adapter.ItemClickListener;
 import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.model.Subtitle;
 import com.andreapetreti.subspedia.ui.adapter.SubtitleListAdapter;
+import com.andreapetreti.subspedia.ui.dialog.SubtitleDialog;
 import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
 
 import java.util.List;
@@ -72,6 +74,9 @@ public class LastSubtitlesFragment extends Fragment {
 
         mSubtitleViewModel = ViewModelProviders.of(this).get(SubtitleViewModel.class);
         mSwipeRefreshLayout.setOnRefreshListener(this::initViewModel);
+
+        mSubtitleListAdapter.setOnItemClickListener((view, adapterPosition) ->
+                SubtitleDialog.newInstance(mSubtitleListAdapter.itemAt(adapterPosition)).show(getFragmentManager(), "ee2"));
 
         initViewModel();
 

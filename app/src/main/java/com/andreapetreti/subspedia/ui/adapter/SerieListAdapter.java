@@ -12,6 +12,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.andreapetreti.android_utils.PicassoSingleton;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.SerieTranslating;
@@ -74,7 +75,7 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
         if(mSerieFilteredList != null) {
             // extended for translating series
             Serie serie = mSerieFilteredList.get(i);
-            Picasso.get().load(serie.getLinkImage()).fit().centerCrop(Gravity.CENTER).into(serieViewHolder.mImageViewLogo);
+            PicassoSingleton.getSharedInstance(mInflater.getContext()).load(serie.getLinkImage()).fit().centerCrop(Gravity.CENTER).into(serieViewHolder.mImageViewLogo);
 
             if(serieViewHolder instanceof SerieTranslatingViewHolder) {
                 SerieTranslating tmp = (SerieTranslating) serie;
@@ -85,9 +86,11 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
                         tmp.getSeasonNumber()));
 
                 serieViewHolder.txtCaption.setText(serie.getStatus());
+                // TODO: set different image when status is "TRADUZIONE" o "REVISIONE"
+                //((SerieTranslatingViewHolder) serieViewHolder).mImageStatus.setImageResource(R.drawable.ic_);
 
             } else {
-                serieViewHolder.mFavourite.setImageResource((serie.isFavorite()) ? R.drawable.ic_star_orange_24dp : R.drawable.ic_star_border_orange_24dp);
+                serieViewHolder.mFavourite.setImageResource(serie.isFavorite() ? R.drawable.ic_star_orange_24dp : R.drawable.ic_star_border_orange_24dp);
                 serieViewHolder.txtTitle.setText(serie.getName());
                 serieViewHolder.txtCaption.setText(String.format(Locale.getDefault(), "%s - %d",
                         serie.getStatus(),
@@ -151,7 +154,7 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
             mImageViewLogo = itemView.findViewById(R.id.imageViewLogo);
             txtTitle = itemView.findViewById(R.id.txtTitle);
             txtCaption = itemView.findViewById(R.id.txtCaption);
-            mFavourite = itemView.findViewById(R.id.imgFavourite);
+            mFavourite = itemView.findViewById(R.id.favoriteIcon);
             itemView.setOnClickListener(this);
         }
 
@@ -164,8 +167,11 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
 
     class SerieTranslatingViewHolder extends SerieViewHolder {
 
+        private ImageView mImageStatus;
+
         SerieTranslatingViewHolder(@NonNull View itemView) {
             super(itemView);
+            mImageStatus = itemView.findViewById(R.id.imgStatus);
         }
     }
 }

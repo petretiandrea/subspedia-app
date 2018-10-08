@@ -1,45 +1,24 @@
 package com.andreapetreti.subspedia;
 
-import android.app.SearchManager;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModel;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.ProgressBar;
 
-import com.andreapetreti.subspedia.common.Resource;
-import com.andreapetreti.subspedia.model.Serie;
-import com.andreapetreti.subspedia.model.SerieTranslating;
-import com.andreapetreti.subspedia.model.Subtitle;
-import com.andreapetreti.subspedia.repo.SerieRepository;
-import com.andreapetreti.subspedia.repo.SubtitlesRepo;
-import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
+
+import com.andreapetreti.subspedia.ui.ActivityLoadingBar;
 import com.andreapetreti.subspedia.ui.fragment.AllSeriesFragment;
 import com.andreapetreti.subspedia.ui.fragment.LastSubtitlesFragment;
 import com.andreapetreti.subspedia.ui.fragment.TranslatingSeriesFragment;
-import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class DashboardActivity extends AppCompatActivity {
+public class DashboardActivity extends AppCompatActivity implements ActivityLoadingBar {
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -51,27 +30,26 @@ public class DashboardActivity extends AppCompatActivity {
 
     private String mCurrentSwitchFragment;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+    private ProgressBar mProgressBar;
 
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    switchFragment(TAG_FRAGMENT_ALL_SERIES);
-                    return true;
-                case R.id.navigation_dashboard:
-                    switchFragment(TAG_FRAGMENT_TRANSLATING_SERIES);
-                    return true;
-                case R.id.navigation_notifications:
-                    switchFragment(TAG_FRAGMENT_LAST_SUBS);
-                    return true;
-            }
-            return false;
-        }
-    };
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = item -> {
+                switch (item.getItemId()) {
+                    case R.id.navigation_home:
+                        switchFragment(TAG_FRAGMENT_ALL_SERIES);
+                        return true;
+                    case R.id.navigation_dashboard:
+                        switchFragment(TAG_FRAGMENT_TRANSLATING_SERIES);
+                        return true;
+                    case R.id.navigation_notifications:
+                        switchFragment(TAG_FRAGMENT_LAST_SUBS);
+                        return true;
+                }
+                return false;
+            };
 
     private Map<String, Fragment> mFragments;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +59,10 @@ public class DashboardActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        mProgressBar = findViewById(R.id.progressBar);
 
         mFragments = new HashMap<>();
         mFragments.put(TAG_FRAGMENT_ALL_SERIES, AllSeriesFragment.newInstance());
@@ -118,5 +98,15 @@ public class DashboardActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.frameLayout, mFragments.get(tag), tag)
                 .commit();
+    }
+
+    @Override
+    public void showLoading() {
+        mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideLoading() {
+        mProgressBar.setVisibility(View.GONE);
     }
 }

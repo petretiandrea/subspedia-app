@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -29,6 +30,9 @@ import java.util.List;
 public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
 
     private LoadingBarMessage mLoadingBarMessage;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private SerieTranslatingViewModel mTranslatingViewModel;
+    private SerieListAdapter mSerieListAdapter;
 
     public TranslatingSeriesFragment() {
         // Required empty public constructor
@@ -58,24 +62,35 @@ public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
         mLoadingBarMessage = rootView.findViewById(R.id.progressMessage);
         mLoadingBarMessage.getProgressBar().setIndeterminate(true);
 
-        SerieListAdapter serieListAdapter = new SerieListAdapter(getActivity());
+        mSerieListAdapter = new SerieListAdapter(getActivity());
 
         RecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewTranslating);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(serieListAdapter);
+        recyclerView.setAdapter(mSerieListAdapter);
 
-        SerieTranslatingViewModel translatingViewModel = ViewModelProviders.of(this).get(SerieTranslatingViewModel.class);
-        translatingViewModel.getAllTranslatingSeries().observe(this, listResource -> {
+        mSwipeRefreshLayout  = rootView.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout.setOnRefreshListener(this::initViewModel);
 
-            if(listResource.status == Resource.Status.LOADING)
-                mLoadingBarMessage.setVisibility(View.VISIBLE);
+        mTranslatingViewModel = ViewModelProviders.of(this).get(SerieTranslatingViewModel.class);
 
-            if(listResource.status == Resource.Status.SUCCESS) {
-                serieListAdapter.setSeries(listResource.data);
-                mLoadingBarMessage.setVisibility(View.GONE);
-            }
-        });
+        initViewModel();
+
         return rootView;
     }
 
+    private void initViewModel() {
+        mTranslatingViewModel.getAllTranslatingSeries().removeObservers(this);
+        mTranslatingViewModel.getAllTranslatingSeries().observe(this, listResource -> {
+
+            if(listResource.status == Resource.Status.LOADING && !mSwipeRefreshLayout.isRefreshing())
+                mLoadingBarMessage.setVisibility(View.VISIBLE);
+
+            if(listResource.status == Resource.Status.SUCCESS) {
+                mSerieListAdapter.setSeries(listResource.data);
+                mLoadingBarMessage.setVisibility(View.GONE);
+                if(mSwipeRefreshLayout.isRefreshing())
+                    mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
 }

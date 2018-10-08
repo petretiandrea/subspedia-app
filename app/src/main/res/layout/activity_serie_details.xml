@@ -73,4 +73,16 @@
 
     </android.support.v4.view.ViewPager>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionFavorite"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:fabSize="normal"
+        app:layout_anchor="@+id/container"
+        app:layout_anchorGravity="bottom|right|center"
+        app:srcCompat="@drawable/ic_star_border_white" />
+
 </android.support.design.widget.CoordinatorLayout>

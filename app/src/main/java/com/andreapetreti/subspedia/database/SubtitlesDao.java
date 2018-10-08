@@ -22,6 +22,7 @@ public interface SubtitlesDao {
     @Query("SELECT * FROM subtitle WHERE mIdSerie = :idSerie ORDER BY mSeasonNumber ASC")
     LiveData<List<Subtitle>> getSubtitlesOf(int idSerie);
 
+
     /*
     @Query("SELECT MAX(mSeasonNumber) FROM subtitle WHERE mIdSerie = :idSerie")
     int getSeaso(int idSerie);*/

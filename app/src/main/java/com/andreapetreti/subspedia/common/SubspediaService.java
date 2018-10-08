@@ -26,6 +26,7 @@ public interface SubspediaService {
     @GET("ultimi_sottotitoli")
     Call<List<Subtitle>> getLastSubtitles();
 
+
     public abstract class Provider {
 
         private static final  String BASE_URL = "https://www.subspedia.tv/API/";

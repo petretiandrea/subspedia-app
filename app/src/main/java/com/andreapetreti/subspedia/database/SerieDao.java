@@ -2,14 +2,15 @@ package com.andreapetreti.subspedia.database;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Update;
 
 import com.andreapetreti.subspedia.model.Serie;
 
 import java.util.List;
+import java.util.Optional;
 
 @Dao
 public interface SerieDao {
@@ -17,12 +18,18 @@ public interface SerieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void save(Serie serie);
 
-    @Query("UPDATE serie SET mFavorite = :add WHERE mIdSerie = :mIdSerie")
-    void setFavourite(boolean add, int mIdSerie);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void save(Serie... serie);
 
     @Query("SELECT * FROM serie WHERE mIdSerie = :serieID")
     LiveData<Serie> getSerie(int serieID);
 
     @Query("SELECT * FROM serie ORDER BY mName ASC")
     LiveData<List<Serie>> getAllSeries();
+
+    @Query("SELECT * FROM serie ORDER BY mName ASC")
+    List<Serie> getAllSeriesSync();
+
+    @Query("UPDATE serie SET mFavorite = :add WHERE mIdSerie = :idSerie")
+    void setFavoriteSerie(int idSerie, boolean add);
 }

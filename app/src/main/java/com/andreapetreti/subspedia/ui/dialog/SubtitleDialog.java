@@ -1,31 +1,45 @@
 package com.andreapetreti.subspedia.ui.dialog;
 
 import android.app.Dialog;
-import android.app.ProgressDialog;
+import android.app.DownloadManager;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
+import android.text.Html;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.andreapetreti.android_utils.PicassoSingleton;
+import com.andreapetreti.subspedia.AppExecutor;
+import com.andreapetreti.subspedia.Constants;
 import com.andreapetreti.subspedia.R;
+import com.andreapetreti.subspedia.database.SubsDatabase;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.Subtitle;
-import com.andreapetreti.subspedia.service.DownloadService;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Objects;
+
+import static android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED;
 
 public class SubtitleDialog extends AppCompatDialogFragment {
 
@@ -52,8 +66,10 @@ public class SubtitleDialog extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
         View dialogView = View.inflate(getActivity(), R.layout.dialog_subtitle, null);
 
+        SeriesViewModel seriesViewModel = ViewModelProviders.of(getActivity()).get(SeriesViewModel.class);
+
         ImageView thub = dialogView.findViewById(R.id.thub);
-        Picasso.get().load(mSubtitle.getSubtitleImage()).into(thub);
+        PicassoSingleton.getSharedInstance(getContext()).load(mSubtitle.getSubtitleImage()).into(thub);
 
         TextView title = dialogView.findViewById(R.id.title);
         title.setText(mSubtitle.getEpisodeTitle());
@@ -66,47 +82,53 @@ public class SubtitleDialog extends AppCompatDialogFragment {
                 mSubtitle.getDate()));
 
         TextView description = dialogView.findViewById(R.id.description);
-        description.setText(mSubtitle.getDescription());
+        description.setText(Html.fromHtml(mSubtitle.getDescription()));
 
 
         builder.setView(dialogView);
-        builder.setPositiveButton(getString(R.string.download), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        builder.setPositiveButton(getString(R.string.download), (dialog, which) -> {
 
-                ProgressBar progressBar = new ProgressBar(getActivity());
-                AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                        .setTitle(mSubtitle.getEpisodeTitle())
-                        .setMessage(getString(R.string.downloading_message))
-                        .setView(progressBar)
-                        .setNegativeButton(getString(R.string.cancel), (dialog1, which1) -> DownloadService.stopDownload(getActivity(), mSubtitle.getLinkFile()))
-                        .setCancelable(false)
-                        .create();
+            LiveData<Serie> data = seriesViewModel.getSerie(mSubtitle.getIdSerie());
+            data.observe(getActivity(), serie -> {
+                data.removeObservers(getActivity());
+                DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+                Uri uri = Uri.parse(mSubtitle.getLinkFile());
+                DownloadManager.Request request = new DownloadManager.Request(uri);
+                request.setTitle(serie.getName());
+                request.setDescription(String.format(Locale.getDefault(), "%dx%d - %s",
+                        mSubtitle.getSeasonNumber(),
+                        mSubtitle.getEpisodeNumber(),
+                        mSubtitle.getEpisodeNumber()));
+                request.setNotificationVisibility(VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                request.setVisibleInDownloadsUi(true);
 
-                alertDialog.show();
+                AppExecutor.getInstance().getNetworkExecutor().execute(() -> {
+                    try {
+                        URL url = new URL(mSubtitle.getLinkFile());
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                        connection.setRequestMethod("HEAD");
+                        connection.connect();
+                        // Extract filename
+                        String content = connection.getHeaderField("Content-Disposition");
+                        String contentSplit[] = content.split("filename=");
+                        String filename = contentSplit[1].replace("filename=", "").replace("\"", "").trim();
+                        String invalid = "|\\?*<\":>+[]/'";
+                        for(char c : invalid.toCharArray())
+                            filename = filename.replace(c, '_');
+                        connection.disconnect();
 
-                DownloadService.startDownload(getActivity(), mSubtitle.getLinkFile(), new ResultReceiver(new Handler()) {
-                    @Override
-                    protected void onReceiveResult(int resultCode, Bundle resultData) {
-                        super.onReceiveResult(resultCode, resultData);
-                        if(resultCode == DownloadService.UPDATE_PROGRESS) {
-                            int progress = resultData.getInt("progress");
-                            progressBar.setProgress(progress);
-                            if(progress == 100) {
-                                alertDialog.dismiss();
-                                Toast.makeText(getActivity(), getString(R.string.download_complete), Toast.LENGTH_LONG).show();
-                            }
-                        } else if(resultCode == DownloadService.ERROR_DOWNLOAD)
-                            Toast.makeText(SubtitleDialog.this.getContext(), getString(R.string.error_download), Toast.LENGTH_LONG).show();
+                        request.setDestinationInExternalFilesDir(getContext(),null, Constants.DOWNLOAD_FOLDER + "/" + filename);
+
+                        downloadManager.enqueue(request);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 });
-            }
+            });
         });
 
         builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
-
         builder.setCancelable(true);
-
         return builder.create();
     }
 }

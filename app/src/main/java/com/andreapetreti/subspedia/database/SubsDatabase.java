@@ -12,7 +12,7 @@ import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.SerieTranslating;
 import com.andreapetreti.subspedia.model.Subtitle;
 
-@Database(entities = {Serie.class, SerieTranslating.class, Subtitle.class}, version = 8)
+@Database(entities = {Serie.class, SerieTranslating.class, Subtitle.class}, version = 13)
 public abstract class SubsDatabase extends RoomDatabase {
 
     private static final String TAG = SubsDatabase.class.getName();

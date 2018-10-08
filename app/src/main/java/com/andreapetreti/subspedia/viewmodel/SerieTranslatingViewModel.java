@@ -15,16 +15,14 @@ import java.util.List;
 
 public class SerieTranslatingViewModel extends AndroidViewModel {
 
-    private LiveData<Resource<List<SerieTranslating>>> mAllTranslatingSerie;
     private SerieTranslatingRepo mSerieTranslatingRepo;
 
     public SerieTranslatingViewModel(@NonNull Application application) {
         super(application);
         mSerieTranslatingRepo = new SerieTranslatingRepo(application);
-        mAllTranslatingSerie = mSerieTranslatingRepo.getAllTranslatingSeries();
     }
 
     public LiveData<Resource<List<SerieTranslating>>> getAllTranslatingSeries() {
-        return mAllTranslatingSerie;
+        return mSerieTranslatingRepo.getAllTranslatingSeries();
     }
 }

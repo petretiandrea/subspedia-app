@@ -1,8 +1,10 @@
 package com.andreapetreti.subspedia.ui.fragment;
 
 
+import android.app.Activity;
 import android.app.SearchManager;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,9 +23,12 @@ import android.view.ViewGroup;
 import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
+import com.andreapetreti.subspedia.ui.ActivityLoadingBar;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
+
+import java.util.Optional;
 
 import static android.content.Context.SEARCH_SERVICE;
 
@@ -41,6 +46,8 @@ public class AllSeriesFragment extends Fragment {
     private SerieListAdapter mSerieListAdapter;
     private LoadingBarMessage mLoadingBarMessage;
 
+    private ActivityLoadingBar mActivityLoadingBar;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -49,6 +56,22 @@ public class AllSeriesFragment extends Fragment {
     // TODO: Rename and change types and number of parameters
     public static AllSeriesFragment newInstance() {
         return new AllSeriesFragment();
+    }
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if(context instanceof ActivityLoadingBar)
+            mActivityLoadingBar = (ActivityLoadingBar) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if(mActivityLoadingBar != null)
+            mActivityLoadingBar.hideLoading();
+        mActivityLoadingBar = null;
     }
 
     @Override
@@ -76,15 +99,28 @@ public class AllSeriesFragment extends Fragment {
         SeriesViewModel seriesViewModel = ViewModelProviders.of(this).get(SeriesViewModel.class);
         seriesViewModel.getAllSeries().observe(this, listResource -> {
 
+            // with no data and loading status, there is no data to show, start a progress bar
             if(listResource.status == Resource.Status.LOADING) {
-                mLoadingBarMessage.setVisibility(View.VISIBLE);
+                if(listResource.data == null || listResource.data.isEmpty())
+                    mLoadingBarMessage.setVisibility(View.VISIBLE);
             }
 
-            if(listResource.status == Resource.Status.SUCCESS) {
+            // generally if data are available, set it.
+            if(listResource.data != null) {
                 mSerieListAdapter.setSeries(listResource.data);
+
+                // if data are available, not show the central progress bar.
                 mLoadingBarMessage.setVisibility(View.GONE);
-                if(refreshLayout.isRefreshing())
-                    refreshLayout.setRefreshing(false);
+
+                if(listResource.status == Resource.Status.LOADING) {
+                    if(mActivityLoadingBar != null)
+                        mActivityLoadingBar.showLoading();
+                } else if(listResource.status == Resource.Status.SUCCESS) {
+                    if(mActivityLoadingBar != null)
+                        mActivityLoadingBar.hideLoading();
+                    if(refreshLayout.isRefreshing())
+                        refreshLayout.setRefreshing(false);
+                }
             }
         });
 
