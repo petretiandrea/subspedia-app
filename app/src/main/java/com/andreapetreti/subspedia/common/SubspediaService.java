@@ -3,6 +3,7 @@ package com.andreapetreti.subspedia.common;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.SerieTranslating;
 import com.andreapetreti.subspedia.model.Subtitle;
+import com.google.gson.JsonObject;
 
 import java.util.List;
 
@@ -25,6 +26,9 @@ public interface SubspediaService {
 
     @GET("ultimi_sottotitoli")
     Call<List<Subtitle>> getLastSubtitles();
+
+    @GET("dettagli_serie")
+    Call<JsonObject> getSerieDetails(@Query("serie") int idSerie);
 
 
     public abstract class Provider {

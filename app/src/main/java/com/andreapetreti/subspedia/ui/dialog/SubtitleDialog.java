@@ -30,6 +30,7 @@ import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.database.SubsDatabase;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.Subtitle;
+import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.squareup.picasso.Picasso;
 
@@ -66,8 +67,6 @@ public class SubtitleDialog extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
         View dialogView = View.inflate(getActivity(), R.layout.dialog_subtitle, null);
 
-        SeriesViewModel seriesViewModel = ViewModelProviders.of(getActivity()).get(SeriesViewModel.class);
-
         ImageView thub = dialogView.findViewById(R.id.thub);
         PicassoSingleton.getSharedInstance(getContext()).load(mSubtitle.getSubtitleImage()).into(thub);
 
@@ -86,46 +85,7 @@ public class SubtitleDialog extends AppCompatDialogFragment {
 
 
         builder.setView(dialogView);
-        builder.setPositiveButton(getString(R.string.download), (dialog, which) -> {
-
-            LiveData<Serie> data = seriesViewModel.getSerie(mSubtitle.getIdSerie());
-            data.observe(getActivity(), serie -> {
-                data.removeObservers(getActivity());
-                DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-                Uri uri = Uri.parse(mSubtitle.getLinkFile());
-                DownloadManager.Request request = new DownloadManager.Request(uri);
-                request.setTitle(serie.getName());
-                request.setDescription(String.format(Locale.getDefault(), "%dx%d - %s",
-                        mSubtitle.getSeasonNumber(),
-                        mSubtitle.getEpisodeNumber(),
-                        mSubtitle.getEpisodeNumber()));
-                request.setNotificationVisibility(VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                request.setVisibleInDownloadsUi(true);
-
-                AppExecutor.getInstance().getNetworkExecutor().execute(() -> {
-                    try {
-                        URL url = new URL(mSubtitle.getLinkFile());
-                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                        connection.setRequestMethod("HEAD");
-                        connection.connect();
-                        // Extract filename
-                        String content = connection.getHeaderField("Content-Disposition");
-                        String contentSplit[] = content.split("filename=");
-                        String filename = contentSplit[1].replace("filename=", "").replace("\"", "").trim();
-                        String invalid = "|\\?*<\":>+[]/'";
-                        for(char c : invalid.toCharArray())
-                            filename = filename.replace(c, '_');
-                        connection.disconnect();
-
-                        request.setDestinationInExternalFilesDir(getContext(),null, Constants.DOWNLOAD_FOLDER + "/" + filename);
-
-                        downloadManager.enqueue(request);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-            });
-        });
+        builder.setPositiveButton(getString(R.string.download), (dialog, which) -> SubspediaUtils.downloadSubtitle(getActivity(), mSubtitle));
 
         builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
         builder.setCancelable(true);

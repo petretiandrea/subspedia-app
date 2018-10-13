@@ -3,11 +3,15 @@ package com.andreapetreti.subspedia.ui.fragment;
 
 import android.app.Activity;
 import android.app.SearchManager;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
@@ -17,17 +21,20 @@ import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
+import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.ui.ActivityLoadingBar;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 
+import java.util.List;
 import java.util.Optional;
 
 import static android.content.Context.SEARCH_SERVICE;
@@ -39,6 +46,20 @@ import static android.content.Context.SEARCH_SERVICE;
  */
 public class AllSeriesFragment extends Fragment {
 
+    private static final String PARAMETER_SHOW_FAVORITE = "com.andreapetreti.subspedia.show_favorite";
+
+    private boolean mShowFavorite;
+
+    public static AllSeriesFragment newInstance(boolean showFavorite) {
+        AllSeriesFragment allSeriesFragment = new AllSeriesFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(PARAMETER_SHOW_FAVORITE, showFavorite);
+        allSeriesFragment.setArguments(bundle);
+
+        return allSeriesFragment;
+    }
+
     public AllSeriesFragment() {
         // Required empty public constructor
     }
@@ -47,17 +68,6 @@ public class AllSeriesFragment extends Fragment {
     private LoadingBarMessage mLoadingBarMessage;
 
     private ActivityLoadingBar mActivityLoadingBar;
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     * @return A new instance of fragment AllSeriesFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AllSeriesFragment newInstance() {
-        return new AllSeriesFragment();
-    }
-
 
     @Override
     public void onAttach(Context context) {
@@ -77,6 +87,8 @@ public class AllSeriesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getArguments() != null)
+            mShowFavorite = getArguments().getBoolean(PARAMETER_SHOW_FAVORITE);
     }
 
     @Override
@@ -97,32 +109,43 @@ public class AllSeriesFragment extends Fragment {
         recyclerView.setAdapter(mSerieListAdapter);
 
         SeriesViewModel seriesViewModel = ViewModelProviders.of(this).get(SeriesViewModel.class);
-        seriesViewModel.getAllSeries().observe(this, listResource -> {
 
-            // with no data and loading status, there is no data to show, start a progress bar
-            if(listResource.status == Resource.Status.LOADING) {
-                if(listResource.data == null || listResource.data.isEmpty())
-                    mLoadingBarMessage.setVisibility(View.VISIBLE);
-            }
-
-            // generally if data are available, set it.
-            if(listResource.data != null) {
-                mSerieListAdapter.setSeries(listResource.data);
-
-                // if data are available, not show the central progress bar.
+        if(mShowFavorite)
+            seriesViewModel.getFavoriteSeries().observe(this, series -> {
                 mLoadingBarMessage.setVisibility(View.GONE);
+                mActivityLoadingBar.hideLoading();
+                if(series != null && series.size() > 0)
+                    mSerieListAdapter.setSeries(series);
+                //else
+                    // TODO: show empty message
+            });
+        else
+            seriesViewModel.getAllSeries().observe(this, listResource -> {
 
+                // with no data and loading status, there is no data to show, start a progress bar
                 if(listResource.status == Resource.Status.LOADING) {
-                    if(mActivityLoadingBar != null)
-                        mActivityLoadingBar.showLoading();
-                } else if(listResource.status == Resource.Status.SUCCESS) {
-                    if(mActivityLoadingBar != null)
-                        mActivityLoadingBar.hideLoading();
-                    if(refreshLayout.isRefreshing())
-                        refreshLayout.setRefreshing(false);
+                    if(listResource.data == null || listResource.data.isEmpty())
+                        mLoadingBarMessage.setVisibility(View.VISIBLE);
                 }
-            }
-        });
+
+                // generally if data are available, set it.
+                if(listResource.data != null) {
+                    mSerieListAdapter.setSeries(listResource.data);
+
+                    // if data are available, not show the central progress bar.
+                    mLoadingBarMessage.setVisibility(View.GONE);
+
+                    if(listResource.status == Resource.Status.LOADING) {
+                        if(mActivityLoadingBar != null)
+                            mActivityLoadingBar.showLoading();
+                    } else if(listResource.status == Resource.Status.SUCCESS) {
+                        if(mActivityLoadingBar != null)
+                            mActivityLoadingBar.hideLoading();
+                        if(refreshLayout.isRefreshing())
+                            refreshLayout.setRefreshing(false);
+                    }
+                }
+            });
 
        // refreshLayout.setOnRefreshListener(seriesViewModel::forceRefresh);
 

@@ -31,6 +31,8 @@
         android:layout_marginTop="8dp"
         android:fontFamily="sans-serif"
         android:text="title"
+        android:singleLine="true"
+        android:ellipsize="end"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         app:layout_constraintBottom_toBottomOf="@+id/thub"
         app:layout_constraintEnd_toEndOf="parent"

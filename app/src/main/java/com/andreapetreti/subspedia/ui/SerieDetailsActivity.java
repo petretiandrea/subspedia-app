@@ -1,6 +1,7 @@
 package com.andreapetreti.subspedia.ui;
 
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -40,6 +41,8 @@ import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.Subtitle;
 import com.andreapetreti.subspedia.ui.adapter.SubtitleListAdapter;
 import com.andreapetreti.subspedia.ui.dialog.SubtitleDialog;
+import com.andreapetreti.subspedia.utils.SubspediaUtils;
+import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.Picasso;
@@ -142,7 +145,16 @@ public class SerieDetailsActivity extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        SubtitleViewModel viewModel = new SubtitleViewModel(getApplication());
+        SeriesViewModel seriesViewModel = ViewModelProviders.of(this).get(SeriesViewModel.class);
+        SubtitleViewModel viewModel = ViewModelProviders.of(this).get(SubtitleViewModel.class);
+
+        seriesViewModel.getSerie(mSerie.getIdSerie()).observe(this, new Observer<Serie>() {
+            @Override
+            public void onChanged(@Nullable Serie serie) {
+
+            }
+        });
+
         viewModel.getSubtitlesOf(mSerie.getIdSerie()).observe(this, listResource -> {
 
             if(listResource.status == Resource.Status.LOADING) {
@@ -221,7 +233,7 @@ public class SerieDetailsActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_subtitles, container, false);
 
-            SubtitleListAdapter listAdapter = new SubtitleListAdapter(getActivity());
+            SubtitleListAdapter listAdapter = new SubtitleListAdapter(getActivity(), SubtitleListAdapter.Type.TYPE_SUB);
 
             RecyclerView recyclerView = rootView.findViewById(R.id.recyclerView);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -229,6 +241,7 @@ public class SerieDetailsActivity extends AppCompatActivity {
             recyclerView.setAdapter(listAdapter);
 
             listAdapter.setOnItemClickListener((view, adapterPosition) -> SubtitleDialog.newInstance(listAdapter.itemAt(adapterPosition)).show(getFragmentManager(), "aa"));
+
             listAdapter.setList(mSubtitles);
             return rootView;
         }

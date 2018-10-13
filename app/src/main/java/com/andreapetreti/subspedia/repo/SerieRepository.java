@@ -1,6 +1,7 @@
 package com.andreapetreti.subspedia.repo;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -20,6 +21,7 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.annimon.stream.function.Consumer;
 import com.annimon.stream.function.Predicate;
+import com.google.gson.JsonObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,20 +57,24 @@ public class SerieRepository {
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
+    public LiveData<List<Serie>> getFavoriteSeries() {
+        return mSerieDao.getFavoriteSeries();
+    }
+
     public LiveData<Resource<List<Serie>>> getAllSeries() {
         return new NetworkBoundResource<List<Serie>, List<Serie>>() {
 
             @Override
             protected void saveCallResult(@NonNull List<Serie> item) {
                 // preserve favorite to DB.
-                Map<Integer, Serie> dbSerie = Stream.of(mSerieDao.getAllSeriesSync()).filter(Serie::isFavorite).collect(Collectors.toMap(Serie::getIdSerie));
+                Map<Integer, Serie> dbSerie = Stream.of(mSerieDao.getAllSeriesSync())
+                        .filter(Serie::isFavorite)
+                        .collect(Collectors.toMap(Serie::getIdSerie));
 
                 Stream.of(item)
-                        .forEach(serie -> {
-                            if(dbSerie.containsKey(serie.getIdSerie()))
-                                serie.setFavorite(dbSerie.get(serie.getIdSerie()).isFavorite());
-                            mSerieDao.save(serie);
-                        });
+                        .peek(serie -> mSerieDao.save(serie))
+                        .filter(serie -> dbSerie.containsKey(serie.getIdSerie()))
+                        .forEach(serie -> serie.setFavorite(dbSerie.get(serie.getIdSerie()).isFavorite()));
             }
 
             @Override
@@ -120,5 +126,23 @@ public class SerieRepository {
 
     public LiveData<Serie> getSerie(int idSerie) {
         return mSerieDao.getSerie(idSerie);
+    }
+
+    public LiveData<Resource<JsonObject>> getDetails(int idSerie) {
+        MutableLiveData<Resource<JsonObject>> liveData = new MutableLiveData<>();
+
+         mSubspediaService.getSerieDetails(idSerie).enqueue(new Callback<JsonObject>() {
+             @Override
+             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                 liveData.postValue(Resource.success());
+             }
+
+             @Override
+             public void onFailure(Call<JsonObject> call, Throwable t) {
+
+             }
+         });
+
+        return liveData;
     }
 }

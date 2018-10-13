@@ -1,6 +1,7 @@
 package com.andreapetreti.subspedia.repo;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,6 +14,8 @@ import com.andreapetreti.subspedia.database.SerieTranslatingDao;
 import com.andreapetreti.subspedia.database.SubsDatabase;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.SerieTranslating;
+import com.annimon.stream.Stream;
+import com.annimon.stream.function.Consumer;
 
 import java.util.List;
 
@@ -43,8 +46,7 @@ public class SerieTranslatingRepo {
 
             @Override
             protected void saveCallResult(@NonNull List<SerieTranslating> item) {
-                for(SerieTranslating s : item)
-                    mSerieTranslatingDao.save(s);
+                Stream.of(item).forEach(mSerieTranslatingDao::save);
             }
 
             @Override
@@ -61,29 +63,21 @@ public class SerieTranslatingRepo {
             @NonNull
             @Override
             protected LiveData<ApiResponse<List<SerieTranslating>>> createCall() {
-                return new LiveData<ApiResponse<List<SerieTranslating>>>() {
-                    boolean alreadyCalled = false;
-                    @Override
-                    protected void onActive() {
-                        super.onActive();
-                        synchronized (this) {
-                            if (!alreadyCalled) {
-                                alreadyCalled = true;
-                                mSubspediaService.getAllTranslatingSeries().enqueue(new Callback<List<SerieTranslating>>() {
-                                    @Override
-                                    public void onResponse(Call<List<SerieTranslating>> call, Response<List<SerieTranslating>> response) {
-                                        postValue(new ApiResponse<>(response));
-                                    }
+                MutableLiveData<ApiResponse<List<SerieTranslating>>> liveData = new MutableLiveData<>();
 
-                                    @Override
-                                    public void onFailure(Call<List<SerieTranslating>> call, Throwable t) {
-                                        postValue(new ApiResponse<>(t));
-                                    }
-                                });
-                            }
-                        }
+                mSubspediaService.getAllTranslatingSeries().enqueue(new Callback<List<SerieTranslating>>() {
+                    @Override
+                    public void onResponse(Call<List<SerieTranslating>> call, Response<List<SerieTranslating>> response) {
+                        liveData.postValue(new ApiResponse<>(response));
                     }
-                };
+
+                    @Override
+                    public void onFailure(Call<List<SerieTranslating>> call, Throwable t) {
+                        liveData.postValue(new ApiResponse<>(t));
+                    }
+                });
+
+                return liveData;
             }
         }.asLiveData();
     }

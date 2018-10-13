@@ -24,8 +24,14 @@ public interface SerieDao {
     @Query("SELECT * FROM serie WHERE mIdSerie = :serieID")
     LiveData<Serie> getSerie(int serieID);
 
+    @Query("SELECT * FROM serie WHERE mIdSerie = :serieID")
+    Serie getSerieSync(int serieID);
+
     @Query("SELECT * FROM serie ORDER BY mName ASC")
     LiveData<List<Serie>> getAllSeries();
+
+    @Query("SELECT * FROM serie WHERE mFavorite = 1 ORDER BY mName ASC")
+    LiveData<List<Serie>> getFavoriteSeries();
 
     @Query("SELECT * FROM serie ORDER BY mName ASC")
     List<Serie> getAllSeriesSync();

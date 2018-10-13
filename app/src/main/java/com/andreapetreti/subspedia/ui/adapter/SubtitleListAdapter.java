@@ -20,11 +20,23 @@ import java.util.Locale;
 
 public class SubtitleListAdapter extends RecyclerListAdapter<Subtitle, SubtitleListAdapter.SubtitleViewHolder> {
 
-    private Picasso mPicasso;
+    public enum Type {
+        TYPE_LAST_SUB,
+        TYPE_SUB
+    }
 
-    public SubtitleListAdapter(Context context) {
+    private Picasso mPicasso;
+    private Type mType;
+
+    public SubtitleListAdapter(Context context, Type type) {
         super(context);
         mPicasso = PicassoSingleton.getSharedInstance(context);
+        mType = type;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return mType.ordinal();
     }
 
     @NonNull
@@ -37,14 +49,21 @@ public class SubtitleListAdapter extends RecyclerListAdapter<Subtitle, SubtitleL
     @Override
     protected void onBindVHolder(@NonNull SubtitleViewHolder holder, int position) {
         Subtitle sub = getList().get(position);
-
         mPicasso.load(sub.getSubtitleImage()).fit().centerCrop(Gravity.CENTER).into(holder.mThubSub);
-        holder.mTxtTitle.setText(sub.getEpisodeTitle());
-        holder.mTxtCaption.setText(String.format(Locale.getDefault(),
-                "%dx%d - %s",
-                sub.getEpisodeNumber(),
-                sub.getSeasonNumber(),
-                sub.getDate()));
+        if(getItemViewType(position) == Type.TYPE_SUB.ordinal()) {
+            holder.mTxtTitle.setText(sub.getEpisodeTitle());
+            holder.mTxtCaption.setText(String.format(Locale.getDefault(),
+                    "%dx%d - %s",
+                    sub.getSeasonNumber(),
+                    sub.getEpisodeNumber(),
+                    sub.getDate()));
+        } else {
+            holder.mTxtTitle.setText(sub.getSerie().getName());
+            holder.mTxtCaption.setText(String.format(Locale.getDefault(), "%dx%d - %s",
+                    sub.getSeasonNumber(),
+                    sub.getEpisodeNumber(),
+                    sub.getEpisodeTitle()));
+        }
     }
 
     class SubtitleViewHolder extends RecyclerView.ViewHolder {

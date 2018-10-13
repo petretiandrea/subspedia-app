@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 
+import com.andreapetreti.android_utils.ui.BottomNavigationViewHelper;
 import com.andreapetreti.subspedia.ui.ActivityLoadingBar;
 import com.andreapetreti.subspedia.ui.fragment.AllSeriesFragment;
 import com.andreapetreti.subspedia.ui.fragment.LastSubtitlesFragment;
@@ -24,6 +25,7 @@ public class DashboardActivity extends AppCompatActivity implements ActivityLoad
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
+    private static final String TAG_FRAGMENT_FAVORITE = "frag_favorite_series";
     private static final String TAG_FRAGMENT_ALL_SERIES = "frag_all_series";
     private static final String TAG_FRAGMENT_TRANSLATING_SERIES = "frag_trans_series";
     private static final String TAG_FRAGMENT_LAST_SUBS = "frag_last_subs";
@@ -37,6 +39,9 @@ public class DashboardActivity extends AppCompatActivity implements ActivityLoad
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
                         switchFragment(TAG_FRAGMENT_ALL_SERIES);
+                        return true;
+                    case R.id.navigation_favorite:
+                        switchFragment(TAG_FRAGMENT_FAVORITE);
                         return true;
                     case R.id.navigation_dashboard:
                         switchFragment(TAG_FRAGMENT_TRANSLATING_SERIES);
@@ -61,11 +66,13 @@ public class DashboardActivity extends AppCompatActivity implements ActivityLoad
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        BottomNavigationViewHelper.removeShiftMode(navigation);
 
         mProgressBar = findViewById(R.id.progressBar);
 
         mFragments = new HashMap<>();
-        mFragments.put(TAG_FRAGMENT_ALL_SERIES, AllSeriesFragment.newInstance());
+        mFragments.put(TAG_FRAGMENT_ALL_SERIES, AllSeriesFragment.newInstance(false));
+        mFragments.put(TAG_FRAGMENT_FAVORITE, AllSeriesFragment.newInstance(true));
         mFragments.put(TAG_FRAGMENT_TRANSLATING_SERIES, TranslatingSeriesFragment.newInstance());
         mFragments.put(TAG_FRAGMENT_LAST_SUBS, LastSubtitlesFragment.newInstance());
 

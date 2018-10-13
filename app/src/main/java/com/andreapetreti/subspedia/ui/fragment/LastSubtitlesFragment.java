@@ -65,7 +65,7 @@ public class LastSubtitlesFragment extends Fragment {
         mLoadingBarMessage.getProgressBar().setIndeterminate(true);
 
         mSwipeRefreshLayout  = rootView.findViewById(R.id.swiperefresh);
-        mSubtitleListAdapter = new SubtitleListAdapter(getActivity());
+        mSubtitleListAdapter = new SubtitleListAdapter(getActivity(), SubtitleListAdapter.Type.TYPE_LAST_SUB);
 
         RecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewSubs);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

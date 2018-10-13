@@ -1,19 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_serie"
-        android:title="@string/section_all_series" />
+        android:title="@string/section_all_series"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/navigation_favorite"
+        android:icon="@drawable/ic_star_border_white"
+        android:title="@string/favorite_serie"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/navigation_dashboard"
         android:icon="@drawable/ic_serie_translate"
-        android:title="@string/section_translating_series" />
+        android:title="@string/section_translating_series"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/navigation_notifications"
         android:icon="@drawable/ic_time_24dp"
-        android:title="@string/title_section_last_sub" />
+        android:title="@string/title_section_last_sub"
+        app:showAsAction="always" />
 
 </menu>

@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.repo.SerieRepository;
+import com.google.gson.JsonObject;
 
 import java.util.List;
 
@@ -33,5 +34,13 @@ public class SeriesViewModel extends AndroidViewModel {
 
     public LiveData<Serie> getSerie(int idSerie) {
         return mSerieRepository.getSerie(idSerie);
+    }
+
+    public LiveData<List<Serie>> getFavoriteSeries() {
+        return mSerieRepository.getFavoriteSeries();
+    }
+
+    public LiveData<JsonObject> getDetails(int idSerie) {
+        mSerieRepository
     }
 }

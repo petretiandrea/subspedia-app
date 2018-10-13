@@ -1,7 +1,9 @@
 package com.andreapetreti.subspedia.model;
 
+import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -46,6 +48,38 @@ public class Subtitle implements Parcelable {
 
     @SerializedName("grazie")
     private int mThanks;
+
+    @Ignore
+    private Serie mSerie;
+
+    public Subtitle() {}
+
+    protected Subtitle(Parcel in) {
+        mIdSerie = in.readInt();
+        mSeasonNumber = in.readInt();
+        mEpisodeNumber = in.readInt();
+        mEpisodeTitle = in.readString();
+        mSubtitleImage = in.readString();
+        mLinkSubtitle = in.readString();
+        mLinkSerie = in.readString();
+        mLinkFile = in.readString();
+        mDescription = in.readString();
+        mDate = in.readString();
+        mThanks = in.readInt();
+        mSerie = in.readParcelable(Serie.class.getClassLoader());
+    }
+
+    public static final Creator<Subtitle> CREATOR = new Creator<Subtitle>() {
+        @Override
+        public Subtitle createFromParcel(Parcel in) {
+            return new Subtitle(in);
+        }
+
+        @Override
+        public Subtitle[] newArray(int size) {
+            return new Subtitle[size];
+        }
+    };
 
     public int getIdSerie() {
         return mIdSerie;
@@ -135,6 +169,14 @@ public class Subtitle implements Parcelable {
         mThanks = thanks;
     }
 
+    public Serie getSerie() {
+        return mSerie;
+    }
+
+    public void setSerie(Serie serie) {
+        this.mSerie = serie;
+    }
+
     @Override
     public String toString() {
         return "Subtitle{" +
@@ -159,6 +201,17 @@ public class Subtitle implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-
+        dest.writeInt(mIdSerie);
+        dest.writeInt(mSeasonNumber);
+        dest.writeInt(mEpisodeNumber);
+        dest.writeString(mEpisodeTitle);
+        dest.writeString(mSubtitleImage);
+        dest.writeString(mLinkSubtitle);
+        dest.writeString(mLinkSerie);
+        dest.writeString(mLinkFile);
+        dest.writeString(mDescription);
+        dest.writeString(mDate);
+        dest.writeInt(mThanks);
+        dest.writeParcelable(mSerie, PARCELABLE_WRITE_RETURN_VALUE);
     }
 }
