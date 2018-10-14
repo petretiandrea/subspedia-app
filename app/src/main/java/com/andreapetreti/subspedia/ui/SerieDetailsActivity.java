@@ -44,6 +44,7 @@ import com.andreapetreti.subspedia.ui.dialog.SubtitleDialog;
 import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
+import com.google.gson.JsonObject;
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.Picasso;
 
@@ -55,12 +56,28 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Activity that shows all subtitles of specific tv serie
+ */
 public class SerieDetailsActivity extends AppCompatActivity {
 
+    /**
+     * KEY for bundle, for pass the serie object.
+     */
     private static final String KEY_SERIE = "serie";
 
+    /**
+     * Current serie showed by the activity.
+     */
     private Serie mSerie;
 
+    /**
+     * Static method for obtain an intent to this activity. Automatically add the serie to bundle
+     * of intent using the proper KEY.
+     * @param context Context.
+     * @param serie Serie to be passed using intent to this activity.
+     * @return A intent that contains the bundle with tv serie.
+     */
     public static Intent obtainIntent(Context context, Serie serie) {
         Intent intent = new Intent(context, SerieDetailsActivity.class);
         intent.putExtra(KEY_SERIE, serie);
@@ -98,6 +115,7 @@ public class SerieDetailsActivity extends AppCompatActivity {
             return;
         }
 
+        // get the serie from intent.
         mSerie = Objects.requireNonNull(getIntent().getExtras()).getParcelable(KEY_SERIE);
 
         if(mSerie == null) {
@@ -107,19 +125,9 @@ public class SerieDetailsActivity extends AppCompatActivity {
 
         /* Init the UI */
         toolbar.setTitle(mSerie.getName());
-
         FloatingActionButton favoriteActionBtn = findViewById(R.id.floatingActionFavorite);
-        SerieDao serieDao = SubsDatabase.getDatabase(SerieDetailsActivity.this).serieDao();
-        serieDao.getSerie(mSerie.getIdSerie()).observe(this, serie -> {
-            mSerie = (serie != null) ? serie : mSerie;
-            favoriteActionBtn.setImageDrawable(
-                    ContextCompat.getDrawable(SerieDetailsActivity.this, mSerie.isFavorite() ? R.drawable.ic_star_white : R.drawable.ic_star_border_white));
-        });
 
-        favoriteActionBtn.setOnClickListener(v ->
-            AppExecutor.getInstance().getDiskExecutor().execute(() -> serieDao.setFavoriteSerie(mSerie.getIdSerie(), !mSerie.isFavorite())
-        ));
-
+        // Load with picasso the big image of tv serie
         ImageView extendImage = findViewById(R.id.header);
         PicassoSingleton.getSharedInstance(this)
                 .load(mSerie.getLinkBannerImage())
@@ -127,35 +135,38 @@ public class SerieDetailsActivity extends AppCompatActivity {
                 .centerCrop(Gravity.CENTER)
                 .into(extendImage);
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
+        // Create the adapter for tabs seasons
         SparseArray<ArrayList<Subtitle>> subtitles = new SparseArray<>();
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), subtitles);
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         ProgressBar progress = findViewById(R.id.progressBar);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        // set some property of tab layout
+        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
+
+        // retrieve the ViewModel for subtitle and tv serie
         SeriesViewModel seriesViewModel = ViewModelProviders.of(this).get(SeriesViewModel.class);
-        SubtitleViewModel viewModel = ViewModelProviders.of(this).get(SubtitleViewModel.class);
+        SubtitleViewModel subtitleViewModel = ViewModelProviders.of(this).get(SubtitleViewModel.class);
 
-        seriesViewModel.getSerie(mSerie.getIdSerie()).observe(this, new Observer<Serie>() {
-            @Override
-            public void onChanged(@Nullable Serie serie) {
-
-            }
+        // Observe the specific serie, and change the icon of action button using the "favorite" status.
+        seriesViewModel.getSerie(mSerie.getIdSerie()).observe(this, serie -> {
+            mSerie = (serie != null) ? serie : mSerie;
+            favoriteActionBtn.setImageDrawable(
+                    ContextCompat.getDrawable(SerieDetailsActivity.this, mSerie.isFavorite() ? R.drawable.ic_star_white : R.drawable.ic_star_border_white));
         });
 
-        viewModel.getSubtitlesOf(mSerie.getIdSerie()).observe(this, listResource -> {
+        // Observe for the subtitles of specific tv serie
+        subtitleViewModel.getSubtitlesOf(mSerie.getIdSerie()).observe(this, listResource -> {
 
             if(listResource.status == Resource.Status.LOADING) {
                 progress.setVisibility(View.VISIBLE);
@@ -165,6 +176,7 @@ public class SerieDetailsActivity extends AppCompatActivity {
             if(listResource.status == Resource.Status.SUCCESS) {
                 int currentSeason = 1;
                 if (listResource.data != null) {
+                    // TODO: use stream instead of two for loops
                     for (int i = 0; i < listResource.data.size(); i++) {
                         if(listResource.data.get(i).getSeasonNumber() > (currentSeason - 1)) {
                             // add new season.
@@ -185,6 +197,9 @@ public class SerieDetailsActivity extends AppCompatActivity {
                 mSectionsPagerAdapter.notifyDataSetChanged();
             }
         });
+
+        // Listener for action button, when pressed change the "favorite" status of serie.
+        favoriteActionBtn.setOnClickListener(v -> seriesViewModel.setFavoriteSerie(mSerie.getIdSerie(), !mSerie.isFavorite()));
     }
 
     @Override

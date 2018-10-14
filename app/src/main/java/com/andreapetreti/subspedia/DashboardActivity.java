@@ -1,8 +1,14 @@
 package com.andreapetreti.subspedia;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
@@ -20,6 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DashboardActivity extends AppCompatActivity implements ActivityLoadingBar {
+
+    /**
+     * READ WRITE PERMISSION REQUEST CODE
+     */
+    private static final int RD_PERMISSION = 100;
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -77,13 +88,31 @@ public class DashboardActivity extends AppCompatActivity implements ActivityLoad
         mFragments.put(TAG_FRAGMENT_LAST_SUBS, LastSubtitlesFragment.newInstance());
 
         mCurrentSwitchFragment = (savedInstanceState != null) ? savedInstanceState.getString("current_frag", TAG_FRAGMENT_ALL_SERIES) : TAG_FRAGMENT_ALL_SERIES;
+    }
 
-        switchFragment(mCurrentSwitchFragment);
+    private void checkAppPermission() {
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, RD_PERMISSION);
+            // if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case RD_PERMISSION:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    switchFragment(mCurrentSwitchFragment);
+                else
+                    finish();
+                break;
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        checkAppPermission();
         switchFragment(mCurrentSwitchFragment);
     }
 

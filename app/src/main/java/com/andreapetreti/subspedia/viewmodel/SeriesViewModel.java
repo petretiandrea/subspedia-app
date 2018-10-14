@@ -40,7 +40,11 @@ public class SeriesViewModel extends AndroidViewModel {
         return mSerieRepository.getFavoriteSeries();
     }
 
-    public LiveData<JsonObject> getDetails(int idSerie) {
-        mSerieRepository
+    public LiveData<Resource<JsonObject>> getDetails(int idSerie) {
+        return mSerieRepository.getDetails(idSerie);
+    }
+
+    public void setFavoriteSerie(int idSerie, boolean addRemove) {
+        mSerieRepository.addSerieToFavorite(idSerie, addRemove);
     }
 }

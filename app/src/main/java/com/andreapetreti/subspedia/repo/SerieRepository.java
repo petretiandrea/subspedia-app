@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.andreapetreti.android_utils.Utils;
+import com.andreapetreti.subspedia.AppExecutor;
 import com.andreapetreti.subspedia.common.ApiResponse;
 import com.andreapetreti.subspedia.common.NetworkBoundResource;
 import com.andreapetreti.subspedia.common.Resource;
@@ -94,32 +95,23 @@ public class SerieRepository {
             @NonNull
             @Override
             protected LiveData<ApiResponse<List<Serie>>> createCall() {
-                return new LiveData<ApiResponse<List<Serie>>>() {
-                    boolean alreadyCalled = false;
-                    @Override
-                    protected void onActive() {
-                        super.onActive();
-                        synchronized (this) {
-                            if (!alreadyCalled) {
-                                alreadyCalled = true;
-                                mSubspediaService.getAllSeries().enqueue(new Callback<List<Serie>>() {
-                                    @Override
-                                    public void onResponse(Call<List<Serie>> call, Response<List<Serie>> response) {
-                                        // save last update
-                                        if(response.isSuccessful() && response.body() != null)
-                                            mSharedPreferences.edit().putLong(SERIE_LAST_UPDATE, Utils.currentTimeUTCMillis()).apply();
-                                        postValue(new ApiResponse<>(response));
-                                    }
+                MutableLiveData<ApiResponse<List<Serie>>> liveData = new MutableLiveData<>();
 
-                                    @Override
-                                    public void onFailure(Call<List<Serie>> call, Throwable t) {
-                                        postValue(new ApiResponse<>(t));
-                                    }
-                                });
-                            }
-                        }
+                mSubspediaService.getAllSeries().enqueue(new Callback<List<Serie>>() {
+                    @Override
+                    public void onResponse(Call<List<Serie>> call, Response<List<Serie>> response) {
+                        if(response.isSuccessful() && response.body() != null)
+                            mSharedPreferences.edit().putLong(SERIE_LAST_UPDATE, Utils.currentTimeUTCMillis()).apply();
+                        liveData.postValue(new ApiResponse<>(response));
                     }
-                };
+
+                    @Override
+                    public void onFailure(Call<List<Serie>> call, Throwable t) {
+                        liveData.postValue(new ApiResponse<>(t));
+                    }
+                });
+
+                return liveData;
             }
         }.asLiveData();
     }
@@ -130,19 +122,26 @@ public class SerieRepository {
 
     public LiveData<Resource<JsonObject>> getDetails(int idSerie) {
         MutableLiveData<Resource<JsonObject>> liveData = new MutableLiveData<>();
+        liveData.postValue(Resource.loading(null));
+        mSubspediaService.getSerieDetails(idSerie).enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if(response.isSuccessful() && response.body() != null)
+                    liveData.postValue(Resource.success(response.body()));
+                else
+                    liveData.postValue(Resource.error(response.message(), response.body()));
+            }
 
-         mSubspediaService.getSerieDetails(idSerie).enqueue(new Callback<JsonObject>() {
-             @Override
-             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                 liveData.postValue(Resource.success());
-             }
-
-             @Override
-             public void onFailure(Call<JsonObject> call, Throwable t) {
-
-             }
-         });
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                liveData.postValue(Resource.error(t.getMessage(), null));
+            }
+        });
 
         return liveData;
+    }
+
+    public void addSerieToFavorite(int idSerie, boolean add) {
+        AppExecutor.getInstance().getDiskExecutor().execute(() -> mSerieDao.setFavoriteSerie(idSerie, add));
     }
 }
