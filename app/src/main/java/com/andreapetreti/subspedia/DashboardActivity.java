@@ -1,7 +1,6 @@
 package com.andreapetreti.subspedia;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,7 +17,7 @@ import android.widget.ProgressBar;
 
 import com.andreapetreti.android_utils.ui.BottomNavigationViewHelper;
 import com.andreapetreti.subspedia.ui.ActivityLoadingBar;
-import com.andreapetreti.subspedia.ui.fragment.AllSeriesFragment;
+import com.andreapetreti.subspedia.ui.fragment.SeriesFragment;
 import com.andreapetreti.subspedia.ui.fragment.LastSubtitlesFragment;
 import com.andreapetreti.subspedia.ui.fragment.TranslatingSeriesFragment;
 
@@ -82,8 +81,8 @@ public class DashboardActivity extends AppCompatActivity implements ActivityLoad
         mProgressBar = findViewById(R.id.progressBar);
 
         mFragments = new HashMap<>();
-        mFragments.put(TAG_FRAGMENT_ALL_SERIES, AllSeriesFragment.newInstance(false));
-        mFragments.put(TAG_FRAGMENT_FAVORITE, AllSeriesFragment.newInstance(true));
+        mFragments.put(TAG_FRAGMENT_ALL_SERIES, SeriesFragment.newInstance(false));
+        mFragments.put(TAG_FRAGMENT_FAVORITE, SeriesFragment.newInstance(true));
         mFragments.put(TAG_FRAGMENT_TRANSLATING_SERIES, TranslatingSeriesFragment.newInstance());
         mFragments.put(TAG_FRAGMENT_LAST_SUBS, LastSubtitlesFragment.newInstance());
 

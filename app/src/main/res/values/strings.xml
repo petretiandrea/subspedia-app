@@ -30,4 +30,6 @@
     <string name="title_section_last_sub">Ultimi</string>
     <string name="add_favorite">Preferita</string>
     <string name="favorite_serie">Preferite</string>
+
+    <string name="favorite_msg_empty_view">Nessuna serie trovata</string>
 </resources>

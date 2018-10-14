@@ -62,5 +62,4 @@ public abstract class RecyclerListAdapter<T, VH extends RecyclerView.ViewHolder>
         return mTList.size();
     }
 
-
 }
