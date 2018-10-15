@@ -8,18 +8,23 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.annimon.stream.Optional;
+
 import java.io.File;
 
 public class DownloadManager extends ContextWrapper {
 
     private static int CURRENT_DOWNLOAD_ID = 1;
 
-    public static DownloadManager newInstance(Context context) {
-        return new DownloadManager(context);
+    private Optional<DownloadConfiguration> mDownloadConfiguration;
+
+    public static DownloadManager newInstance(Context context, DownloadConfiguration configuration) {
+        return new DownloadManager(context, configuration);
     }
 
-    private DownloadManager(Context base) {
+    private DownloadManager(Context base, DownloadConfiguration configuration) {
         super(base);
+        mDownloadConfiguration = Optional.of(configuration);
     }
 
 
@@ -40,12 +45,10 @@ public class DownloadManager extends ContextWrapper {
         private String mTitle;
 
         private String mDescription;
-
         /**
          * Uri where download
          */
         private Uri mUri;
-
         /**
          * Path + filename where save the downloaded file.
          */

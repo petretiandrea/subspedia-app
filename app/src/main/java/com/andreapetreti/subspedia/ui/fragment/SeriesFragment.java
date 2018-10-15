@@ -1,7 +1,6 @@
 package com.andreapetreti.subspedia.ui.fragment;
 
 
-import android.app.Activity;
 import android.app.SearchManager;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
@@ -30,31 +29,39 @@ import static android.content.Context.SEARCH_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link AllSeriesFragment#newInstance} factory method to
+ * Use the {@link SeriesFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AllSeriesFragment extends Fragment {
+public class SeriesFragment extends Fragment {
 
     private static final String PARAMETER_SHOW_FAVORITE = "com.andreapetreti.subspedia.show_favorite";
 
+    /**
+     * Favorite flag for indicate if the fragment show only favorite or not.
+     */
     private boolean mShowFavorite;
+    /**
+     * Adapter for tv series.
+     */
+    private SerieListAdapter mSerieListAdapter;
+    /**
+     * Loading bar and message showed when list is loading.
+     */
+    private LoadingBarMessage mLoadingBarMessage;
 
-    public static AllSeriesFragment newInstance(boolean showFavorite) {
-        AllSeriesFragment allSeriesFragment = new AllSeriesFragment();
+    public static SeriesFragment newInstance(boolean showFavorite) {
+        SeriesFragment seriesFragment = new SeriesFragment();
 
         Bundle bundle = new Bundle();
         bundle.putBoolean(PARAMETER_SHOW_FAVORITE, showFavorite);
-        allSeriesFragment.setArguments(bundle);
+        seriesFragment.setArguments(bundle);
 
-        return allSeriesFragment;
+        return seriesFragment;
     }
 
-    public AllSeriesFragment() {
+    public SeriesFragment() {
         // Required empty public constructor
     }
-
-    private SerieListAdapter mSerieListAdapter;
-    private LoadingBarMessage mLoadingBarMessage;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,10 +92,8 @@ public class AllSeriesFragment extends Fragment {
         if(mShowFavorite)
             seriesViewModel.getFavoriteSeries().observe(this, series -> {
                 mLoadingBarMessage.setVisibility(View.GONE);
-                if(series != null && series.size() > 0)
+                if(series != null)
                     mSerieListAdapter.setSeries(series);
-                //else
-                    // TODO: show empty message
             });
         else
             seriesViewModel.getAllSeries().observe(this, listResource -> {
@@ -121,7 +126,6 @@ public class AllSeriesFragment extends Fragment {
        // refreshLayout.setOnRefreshListener(seriesViewModel::forceRefresh);
 
         mSerieListAdapter.setItemClickListener((view, adapterPosition) -> {
-            //Intent intent = SerieDetailsActivity.obtainIntent(getActivity(), mSerieListAdapter.itemAt(adapterPosition));
             Intent intent = SerieDetailsActivity.obtainIntent(getActivity(), mSerieListAdapter.itemAt(adapterPosition));
             startActivity(intent);
         });
