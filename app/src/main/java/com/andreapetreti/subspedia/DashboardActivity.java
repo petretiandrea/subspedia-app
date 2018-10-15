@@ -1,7 +1,6 @@
 package com.andreapetreti.subspedia;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,12 +11,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.widget.ProgressBar;
 
 
 import com.andreapetreti.android_utils.ui.BottomNavigationViewHelper;
-import com.andreapetreti.subspedia.ui.ActivityLoadingBar;
 import com.andreapetreti.subspedia.ui.fragment.AllSeriesFragment;
 import com.andreapetreti.subspedia.ui.fragment.LastSubtitlesFragment;
 import com.andreapetreti.subspedia.ui.fragment.TranslatingSeriesFragment;
@@ -25,7 +21,7 @@ import com.andreapetreti.subspedia.ui.fragment.TranslatingSeriesFragment;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DashboardActivity extends AppCompatActivity implements ActivityLoadingBar {
+public class DashboardActivity extends AppCompatActivity {
 
     /**
      * READ WRITE PERMISSION REQUEST CODE
@@ -42,8 +38,6 @@ public class DashboardActivity extends AppCompatActivity implements ActivityLoad
     private static final String TAG_FRAGMENT_LAST_SUBS = "frag_last_subs";
 
     private String mCurrentSwitchFragment;
-
-    private ProgressBar mProgressBar;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
@@ -78,8 +72,6 @@ public class DashboardActivity extends AppCompatActivity implements ActivityLoad
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         BottomNavigationViewHelper.removeShiftMode(navigation);
-
-        mProgressBar = findViewById(R.id.progressBar);
 
         mFragments = new HashMap<>();
         mFragments.put(TAG_FRAGMENT_ALL_SERIES, AllSeriesFragment.newInstance(false));
@@ -134,15 +126,5 @@ public class DashboardActivity extends AppCompatActivity implements ActivityLoad
                 .beginTransaction()
                 .replace(R.id.frameLayout, mFragments.get(tag), tag)
                 .commit();
-    }
-
-    @Override
-    public void showLoading() {
-        mProgressBar.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void hideLoading() {
-        mProgressBar.setVisibility(View.GONE);
     }
 }

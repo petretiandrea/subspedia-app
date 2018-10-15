@@ -3,15 +3,10 @@ package com.andreapetreti.subspedia.ui.fragment;
 
 import android.app.Activity;
 import android.app.SearchManager;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
@@ -21,21 +16,15 @@ import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
-import com.andreapetreti.subspedia.model.Serie;
-import com.andreapetreti.subspedia.ui.ActivityLoadingBar;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
-
-import java.util.List;
-import java.util.Optional;
 
 import static android.content.Context.SEARCH_SERVICE;
 
@@ -67,23 +56,6 @@ public class AllSeriesFragment extends Fragment {
     private SerieListAdapter mSerieListAdapter;
     private LoadingBarMessage mLoadingBarMessage;
 
-    private ActivityLoadingBar mActivityLoadingBar;
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if(context instanceof ActivityLoadingBar)
-            mActivityLoadingBar = (ActivityLoadingBar) context;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        if(mActivityLoadingBar != null)
-            mActivityLoadingBar.hideLoading();
-        mActivityLoadingBar = null;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,7 +85,6 @@ public class AllSeriesFragment extends Fragment {
         if(mShowFavorite)
             seriesViewModel.getFavoriteSeries().observe(this, series -> {
                 mLoadingBarMessage.setVisibility(View.GONE);
-                mActivityLoadingBar.hideLoading();
                 if(series != null && series.size() > 0)
                     mSerieListAdapter.setSeries(series);
                 //else
@@ -135,7 +106,7 @@ public class AllSeriesFragment extends Fragment {
                     // if data are available, not show the central progress bar.
                     mLoadingBarMessage.setVisibility(View.GONE);
 
-                    if(listResource.status == Resource.Status.LOADING) {
+                    /*if(listResource.status == Resource.Status.LOADING) {
                         if(mActivityLoadingBar != null)
                             mActivityLoadingBar.showLoading();
                     } else if(listResource.status == Resource.Status.SUCCESS) {
@@ -143,7 +114,7 @@ public class AllSeriesFragment extends Fragment {
                             mActivityLoadingBar.hideLoading();
                         if(refreshLayout.isRefreshing())
                             refreshLayout.setRefreshing(false);
-                    }
+                    }*/
                 }
             });
 
