@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.Subtitle;
+import com.andreapetreti.subspedia.model.SubtitleWithSerie;
 import com.andreapetreti.subspedia.repo.SerieRepository;
 import com.andreapetreti.subspedia.repo.SubtitlesRepo;
 
@@ -15,7 +16,7 @@ import java.util.List;
 
 public class SubtitleViewModel extends AndroidViewModel {
 
-    private LiveData<Resource<List<Subtitle>>> mSubtitles;
+    private LiveData<Resource<List<SubtitleWithSerie>>> mSubtitles;
     private SubtitlesRepo mSubtitlesRepo;
 
     public SubtitleViewModel(@NonNull Application application) {
@@ -24,13 +25,13 @@ public class SubtitleViewModel extends AndroidViewModel {
         mSubtitles = null;
     }
 
-    public LiveData<Resource<List<Subtitle>>> getSubtitlesOf(int idSerie) {
+    public LiveData<Resource<List<SubtitleWithSerie>>> getSubtitlesOf(int idSerie) {
         if(mSubtitles == null)
             mSubtitles = mSubtitlesRepo.getSubtitlesOf(idSerie);
         return mSubtitles;
     }
 
-    public LiveData<Resource<List<Subtitle>>> getLastSubtitles() {
+    public LiveData<Resource<List<SubtitleWithSerie>>> getLastSubtitles() {
         return mSubtitlesRepo.getLastSubtitles();
     }
 

@@ -16,22 +16,25 @@ public class DownloadManager extends ContextWrapper {
 
     private static int CURRENT_DOWNLOAD_ID = 1;
 
-    private Optional<DownloadConfiguration> mDownloadConfiguration;
+    protected static String REQUEST = "request";
+    protected static String SMALL_ICON = "small_icon";
+    protected static String LARGE_ICON = "large_icon";
 
-    public static DownloadManager newInstance(Context context, DownloadConfiguration configuration) {
-        return new DownloadManager(context, configuration);
-    }
+    private int mSmallIcon;
+    private int mLargeIcon;
 
-    private DownloadManager(Context base, DownloadConfiguration configuration) {
+    public DownloadManager(Context base, int smallIcon, int largeIcon) {
         super(base);
-        mDownloadConfiguration = Optional.of(configuration);
+        mSmallIcon = smallIcon;
+        mLargeIcon = largeIcon;
     }
-
 
     public synchronized void enqueue(Request request) {
         Intent intent = new Intent(this, DownloadIntentService.class);
         request.setId(CURRENT_DOWNLOAD_ID++);
-        intent.putExtra("request", request);
+        intent.putExtra(REQUEST, request);
+        intent.putExtra(SMALL_ICON, mSmallIcon);
+        intent.putExtra(LARGE_ICON, mLargeIcon);
         startService(intent);
     }
 
@@ -151,4 +154,36 @@ public class DownloadManager extends ContextWrapper {
         }
     }
 
+    /**
+     * Builder
+     */
+    public static class Builder {
+
+        private Optional<Context> mContext;
+        private Optional<Integer> mSmallIcon;
+        private Optional<Integer> mLargeIcon;
+
+        public Builder(Context context) {
+            mContext = Optional.of(context);
+            mSmallIcon = Optional.empty();
+            mLargeIcon = Optional.empty();
+        }
+
+        public Builder setSmallIcon(int smallIcon) {
+            mSmallIcon = Optional.of(smallIcon);
+            return this;
+        }
+
+        public Builder setLargeIcon(int largeIcon) {
+            mLargeIcon = Optional.of(largeIcon);
+            return this;
+        }
+
+        public DownloadManager build() {
+            if(mContext.isPresent() && mSmallIcon.isPresent()) {
+                return new DownloadManager(mContext.get(), mSmallIcon.get(), mLargeIcon.get());
+            }
+            throw new IllegalArgumentException("Context or small icon not set");
+        }
+    }
 }

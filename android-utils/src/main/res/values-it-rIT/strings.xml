@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">android-utils</string>
-    <string name="download_complete">Download completato</string>
+   <string name="download_complete">Download completato</string>
     <string name="download_fail">Download fallito</string>
 </resources>

@@ -30,6 +30,7 @@ import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.database.SubsDatabase;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.Subtitle;
+import com.andreapetreti.subspedia.model.SubtitleWithSerie;
 import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.squareup.picasso.Picasso;
@@ -46,9 +47,9 @@ public class SubtitleDialog extends AppCompatDialogFragment {
 
     private static final String KEY_SUBTITLE = "sub";
 
-    private Subtitle mSubtitle;
+    private SubtitleWithSerie mSubtitle;
 
-    public static SubtitleDialog newInstance(Subtitle subtitle) {
+    public static SubtitleDialog newInstance(SubtitleWithSerie subtitle) {
         SubtitleDialog dialog = new SubtitleDialog();
         Bundle bundle = new Bundle();
         bundle.putParcelable(KEY_SUBTITLE, subtitle);
@@ -68,20 +69,20 @@ public class SubtitleDialog extends AppCompatDialogFragment {
         View dialogView = View.inflate(getActivity(), R.layout.dialog_subtitle, null);
 
         ImageView thub = dialogView.findViewById(R.id.thub);
-        PicassoSingleton.getSharedInstance(getContext()).load(mSubtitle.getSubtitleImage()).into(thub);
+        PicassoSingleton.getSharedInstance(getContext()).load(mSubtitle.getSubtitle().getSubtitleImage()).into(thub);
 
         TextView title = dialogView.findViewById(R.id.title);
-        title.setText(mSubtitle.getEpisodeTitle());
+        title.setText(mSubtitle.getSubtitle().getEpisodeTitle());
 
         TextView meta = dialogView.findViewById(R.id.meta);
         meta.setText(String.format(Locale.getDefault(),
                 "%dx%d - %s",
-                mSubtitle.getSeasonNumber(),
-                mSubtitle.getEpisodeNumber(),
-                mSubtitle.getDate()));
+                mSubtitle.getSubtitle().getSeasonNumber(),
+                mSubtitle.getSubtitle().getEpisodeNumber(),
+                mSubtitle.getSubtitle().getDate()));
 
         TextView description = dialogView.findViewById(R.id.description);
-        description.setText(Html.fromHtml(mSubtitle.getDescription()));
+        description.setText(Html.fromHtml(mSubtitle.getSubtitle().getDescription()));
 
 
         builder.setView(dialogView);

@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
@@ -56,19 +57,21 @@ public class DownloadIntentService extends IntentService implements Downloader.D
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        Parcelable parcelable = intent.getParcelableExtra("request");
+        Parcelable parcelable = intent.getParcelableExtra(DownloadManager.REQUEST);
         if(parcelable instanceof DownloadManager.Request) {
             DownloadManager.Request request = (DownloadManager.Request) parcelable;
 
+            // resource for notification
+            int smallIcon = intent.getIntExtra(DownloadManager.SMALL_ICON, -1);
+            int largeIcon = intent.getIntExtra(DownloadManager.LARGE_ICON, -1);
+
             mNotificationId = request.getId();
             mBuilder = new NotificationCompat.Builder(this, CHANNEL_ONE_ID)
-                    .setSmallIcon(android.support.v4.R.drawable.notification_bg)
-                    .setProgress(0, 0, true)
-                    .setOngoing(true)
-                    .setOnlyAlertOnce(true)
-                    .setAutoCancel(true);
+                    .setSmallIcon(smallIcon)
+                    .setProgress(0, 0, true);
 
-            //startForeground(request.getId(), mBuilder.build());
+            if(largeIcon != -1)
+                mBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(), largeIcon));
 
             // locking method, wait for download
             mDownloader.download(request, this);
@@ -80,7 +83,9 @@ public class DownloadIntentService extends IntentService implements Downloader.D
         // show notification
         mBuilder.setContentTitle(request.getTitle())
                 .setContentText(request.getDescription())
-                .setProgress(0, 0, true);
+                .setProgress(0, 0, true)
+                .setAutoCancel(true)
+                .setOngoing(true);
 
         mNotificationManager.notify(request.getId(), mBuilder.build());
     }
@@ -98,15 +103,14 @@ public class DownloadIntentService extends IntentService implements Downloader.D
             // complete download
             mNotificationManager.cancel(request.getId());
 
-            mNotificationManager.notify(request.getId(), new NotificationCompat.Builder(this, CHANNEL_ONE_ID)
-                    .setSmallIcon(android.support.v4.R.drawable.notification_bg)
-                    .setContentTitle(request.getTitle())
+            mBuilder.setContentTitle(request.getTitle())
                     .setContentText(getString(R.string.download_complete))
                     .setProgress(0, 0, false)
                     .setNumber(request.getId())
                     .setOngoing(false)
-                    .setOnlyAlertOnce(true)
-                    .setAutoCancel(false).build());
+                    .setAutoCancel(false);
+
+            mNotificationManager.notify(request.getId(), mBuilder.build());
         }
     }
 

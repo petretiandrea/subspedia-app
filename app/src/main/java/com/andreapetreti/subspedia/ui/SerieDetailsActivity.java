@@ -39,11 +39,14 @@ import com.andreapetreti.subspedia.database.SerieDao;
 import com.andreapetreti.subspedia.database.SubsDatabase;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.Subtitle;
+import com.andreapetreti.subspedia.model.SubtitleWithSerie;
 import com.andreapetreti.subspedia.ui.adapter.SubtitleListAdapter;
 import com.andreapetreti.subspedia.ui.dialog.SubtitleDialog;
 import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
+import com.annimon.stream.Stream;
+import com.annimon.stream.function.Function;
 import com.google.gson.JsonObject;
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.Picasso;
@@ -136,7 +139,7 @@ public class SerieDetailsActivity extends AppCompatActivity {
                 .into(extendImage);
 
         // Create the adapter for tabs seasons
-        SparseArray<ArrayList<Subtitle>> subtitles = new SparseArray<>();
+        SparseArray<ArrayList<SubtitleWithSerie>> subtitles = new SparseArray<>();
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), subtitles);
 
         // Set up the ViewPager with the sections adapter.
@@ -178,11 +181,11 @@ public class SerieDetailsActivity extends AppCompatActivity {
                 if (listResource.data != null) {
                     // TODO: use stream instead of two for loops
                     for (int i = 0; i < listResource.data.size(); i++) {
-                        if(listResource.data.get(i).getSeasonNumber() > (currentSeason - 1)) {
+                        if(listResource.data.get(i).getSubtitle().getSeasonNumber() > (currentSeason - 1)) {
                             // add new season.
-                            ArrayList<Subtitle> subs = new ArrayList<>();
-                            for(Subtitle s : listResource.data)
-                                if(s.getSeasonNumber() == currentSeason)
+                            ArrayList<SubtitleWithSerie> subs = new ArrayList<>();
+                            for(SubtitleWithSerie s : listResource.data)
+                                if(s.getSubtitle().getSeasonNumber() == currentSeason)
                                     subs.add(s);
 
                             String title = String.format(Locale.getDefault(), getString(R.string.season), currentSeason);
@@ -218,7 +221,7 @@ public class SerieDetailsActivity extends AppCompatActivity {
          */
         private static final String ARG_SUBTITLES = "subtitles";
 
-        private List<Subtitle> mSubtitles;
+        private List<SubtitleWithSerie> mSubtitles;
 
         public PlaceholderFragment() {
         }
@@ -227,7 +230,7 @@ public class SerieDetailsActivity extends AppCompatActivity {
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(ArrayList<Subtitle> subtitles) {
+        public static PlaceholderFragment newInstance(ArrayList<SubtitleWithSerie> subtitles) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putSerializable(ARG_SUBTITLES, subtitles);
@@ -239,7 +242,7 @@ public class SerieDetailsActivity extends AppCompatActivity {
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             if (getArguments() != null) {
-                mSubtitles = (List<Subtitle>) getArguments().getSerializable(ARG_SUBTITLES);
+                mSubtitles = (List<SubtitleWithSerie>) getArguments().getSerializable(ARG_SUBTITLES);
             }
         }
 
@@ -268,12 +271,12 @@ public class SerieDetailsActivity extends AppCompatActivity {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        SectionsPagerAdapter(FragmentManager fm, SparseArray<ArrayList<Subtitle>> map) {
+        SectionsPagerAdapter(FragmentManager fm, SparseArray<ArrayList<SubtitleWithSerie>> map) {
             super(fm);
             mMap = map;
         }
 
-        private SparseArray<ArrayList<Subtitle>> mMap;
+        private SparseArray<ArrayList<SubtitleWithSerie>> mMap;
 
         @Override
         public Fragment getItem(int position) {

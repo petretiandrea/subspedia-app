@@ -17,13 +17,17 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.andreapetreti.android_utils.adapter.EmptyRecyclerView;
 import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
+
+import org.w3c.dom.Text;
 
 import static android.content.Context.SEARCH_SERVICE;
 
@@ -74,18 +78,23 @@ public class SeriesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_all_series, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_series, container, false);
 
         SwipeRefreshLayout refreshLayout = rootView.findViewById(R.id.swiperefresh);
         mLoadingBarMessage = rootView.findViewById(R.id.progressMessage);
         mLoadingBarMessage.getProgressBar().setIndeterminate(true);
         mSerieListAdapter = new SerieListAdapter(getActivity());
 
-        RecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewSeries);
+        EmptyRecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewSeries);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(mSerieListAdapter);
+        TextView emptyView = rootView.findViewById(R.id.emptyView);
+        emptyView.setText(getString(mShowFavorite ? R.string.empty_msg_favorite : R.string.empty));
+        recyclerView.setEmptyView(emptyView);
+
+        // TODO: disable refresh if mShowFavorite is true.
 
         SeriesViewModel seriesViewModel = ViewModelProviders.of(this).get(SeriesViewModel.class);
 
@@ -97,7 +106,6 @@ public class SeriesFragment extends Fragment {
             });
         else
             seriesViewModel.getAllSeries().observe(this, listResource -> {
-
                 // with no data and loading status, there is no data to show, start a progress bar
                 if(listResource.status == Resource.Status.LOADING) {
                     if(listResource.data == null || listResource.data.isEmpty())

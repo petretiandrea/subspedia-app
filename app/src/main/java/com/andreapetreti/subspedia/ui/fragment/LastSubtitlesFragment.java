@@ -97,7 +97,5 @@ public class LastSubtitlesFragment extends Fragment {
                     mSwipeRefreshLayout.setRefreshing(false);
             }
         });
-
-
     }
 }

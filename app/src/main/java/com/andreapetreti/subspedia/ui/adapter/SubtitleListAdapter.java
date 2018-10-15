@@ -13,12 +13,13 @@ import com.andreapetreti.android_utils.PicassoSingleton;
 import com.andreapetreti.android_utils.adapter.RecyclerListAdapter;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.model.Subtitle;
+import com.andreapetreti.subspedia.model.SubtitleWithSerie;
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.Picasso;
 
 import java.util.Locale;
 
-public class SubtitleListAdapter extends RecyclerListAdapter<Subtitle, SubtitleListAdapter.SubtitleViewHolder> {
+public class SubtitleListAdapter extends RecyclerListAdapter<SubtitleWithSerie, SubtitleListAdapter.SubtitleViewHolder> {
 
     public enum Type {
         TYPE_LAST_SUB,
@@ -48,21 +49,21 @@ public class SubtitleListAdapter extends RecyclerListAdapter<Subtitle, SubtitleL
 
     @Override
     protected void onBindVHolder(@NonNull SubtitleViewHolder holder, int position) {
-        Subtitle sub = getList().get(position);
-        mPicasso.load(sub.getSubtitleImage()).fit().centerCrop(Gravity.CENTER).into(holder.mThubSub);
+        SubtitleWithSerie sub = getList().get(position);
+        mPicasso.load(sub.getSubtitle().getSubtitleImage()).fit().centerCrop(Gravity.CENTER).into(holder.mThubSub);
         if(getItemViewType(position) == Type.TYPE_SUB.ordinal()) {
-            holder.mTxtTitle.setText(sub.getEpisodeTitle());
+            holder.mTxtTitle.setText(sub.getSubtitle().getEpisodeTitle());
             holder.mTxtCaption.setText(String.format(Locale.getDefault(),
                     "%dx%d - %s",
-                    sub.getSeasonNumber(),
-                    sub.getEpisodeNumber(),
-                    sub.getDate()));
+                    sub.getSubtitle().getSeasonNumber(),
+                    sub.getSubtitle().getEpisodeNumber(),
+                    sub.getSubtitle().getDate()));
         } else {
             holder.mTxtTitle.setText(sub.getSerie().getName());
             holder.mTxtCaption.setText(String.format(Locale.getDefault(), "%dx%d - %s",
-                    sub.getSeasonNumber(),
-                    sub.getEpisodeNumber(),
-                    sub.getEpisodeTitle()));
+                    sub.getSubtitle().getSeasonNumber(),
+                    sub.getSubtitle().getEpisodeNumber(),
+                    sub.getSubtitle().getEpisodeTitle()));
         }
     }
 

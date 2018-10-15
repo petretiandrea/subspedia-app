@@ -1,10 +1,12 @@
 package com.andreapetreti.subspedia.model;
 
+import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
+import android.arch.persistence.room.Relation;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -49,10 +51,12 @@ public class Subtitle implements Parcelable {
     @SerializedName("grazie")
     private int mThanks;
 
-    @Ignore
-    private Serie mSerie;
+    @ColumnInfo(name = "last_write")
+    private long mCurrentMillis;
 
-    public Subtitle() {}
+    public Subtitle() {
+        mCurrentMillis = System.currentTimeMillis();
+    }
 
     protected Subtitle(Parcel in) {
         mIdSerie = in.readInt();
@@ -66,7 +70,7 @@ public class Subtitle implements Parcelable {
         mDescription = in.readString();
         mDate = in.readString();
         mThanks = in.readInt();
-        mSerie = in.readParcelable(Serie.class.getClassLoader());
+        mCurrentMillis = in.readLong();
     }
 
     public static final Creator<Subtitle> CREATOR = new Creator<Subtitle>() {
@@ -169,12 +173,12 @@ public class Subtitle implements Parcelable {
         mThanks = thanks;
     }
 
-    public Serie getSerie() {
-        return mSerie;
+    public long getCurrentMillis() {
+        return mCurrentMillis;
     }
 
-    public void setSerie(Serie serie) {
-        this.mSerie = serie;
+    public void setCurrentMillis(long currentMillis) {
+        mCurrentMillis = currentMillis;
     }
 
     @Override
@@ -212,6 +216,6 @@ public class Subtitle implements Parcelable {
         dest.writeString(mDescription);
         dest.writeString(mDate);
         dest.writeInt(mThanks);
-        dest.writeParcelable(mSerie, PARCELABLE_WRITE_RETURN_VALUE);
+        dest.writeLong(mCurrentMillis);
     }
 }
