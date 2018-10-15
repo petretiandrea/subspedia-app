@@ -45,12 +45,9 @@ public abstract class RecyclerListAdapter<T, VH extends RecyclerView.ViewHolder>
 
     @Override
     public void onBindViewHolder(@NonNull final VH holder, int position) {
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(mItemClickListener != null)
-                    mItemClickListener.onItemClick(holder.itemView, holder.getAdapterPosition());
-            }
+        holder.itemView.setOnClickListener(v -> {
+            if(mItemClickListener != null)
+                mItemClickListener.onItemClick(holder.itemView, holder.getAdapterPosition());
         });
         onBindVHolder(holder, position);
     }
@@ -61,6 +58,5 @@ public abstract class RecyclerListAdapter<T, VH extends RecyclerView.ViewHolder>
     public int getItemCount() {
         return mTList.size();
     }
-
 
 }

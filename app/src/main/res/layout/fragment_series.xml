@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.fragment.AllSeriesFragment">
-
+    tools:context=".ui.fragment.SeriesFragment">
 
     <com.andreapetreti.android_utils.ui.LoadingBarMessage
         android:id="@+id/progressMessage"
@@ -14,6 +13,15 @@
         android:layout_gravity="center_vertical|center_horizontal"
         app:text="@string/loading_series" />
 
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/emptyView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="16dp"
+        android:visibility="gone"
+        android:text="@string/empty" />
 
     <android.support.v4.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -21,11 +29,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
+        <com.andreapetreti.android_utils.adapter.EmptyRecyclerView
             android:id="@+id/recyclerViewSeries"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
     </android.support.v4.widget.SwipeRefreshLayout>
-
-
 </FrameLayout>

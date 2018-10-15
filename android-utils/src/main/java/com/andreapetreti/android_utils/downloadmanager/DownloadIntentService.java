@@ -12,6 +12,8 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
+import com.andreapetreti.android_utils.R;
+
 public class DownloadIntentService extends IntentService implements Downloader.DownloadListener {
 
 
@@ -99,7 +101,7 @@ public class DownloadIntentService extends IntentService implements Downloader.D
             mNotificationManager.notify(request.getId(), new NotificationCompat.Builder(this, CHANNEL_ONE_ID)
                     .setSmallIcon(android.support.v4.R.drawable.notification_bg)
                     .setContentTitle(request.getTitle())
-                    .setContentText("Download complete - " + request.getDescription())
+                    .setContentText(getString(R.string.download_complete))
                     .setProgress(0, 0, false)
                     .setNumber(request.getId())
                     .setOngoing(false)
@@ -110,7 +112,7 @@ public class DownloadIntentService extends IntentService implements Downloader.D
 
     @Override
     public void onFail(DownloadManager.Request request, Throwable t) {
-        mBuilder.setContentText("Download failed").setProgress(0, 0, false);
+        mBuilder.setContentText(getString(R.string.download_fail)).setProgress(0, 0, false);
         mNotificationManager.notify(request.getId(), mBuilder.build());
     }
 }

@@ -12,6 +12,8 @@ import java.io.File;
 
 public class DownloadManager extends ContextWrapper {
 
+    private static int CURRENT_DOWNLOAD_ID = 1;
+
     public static DownloadManager newInstance(Context context) {
         return new DownloadManager(context);
     }
@@ -21,10 +23,10 @@ public class DownloadManager extends ContextWrapper {
     }
 
 
-    public void enqueue(Request request) {
+    public synchronized void enqueue(Request request) {
         Intent intent = new Intent(this, DownloadIntentService.class);
+        request.setId(CURRENT_DOWNLOAD_ID++);
         intent.putExtra("request", request);
-
         startService(intent);
     }
 
