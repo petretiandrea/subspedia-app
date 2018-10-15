@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.andreapetreti.android_utils.adapter.EmptyRecyclerView;
 import com.andreapetreti.android_utils.ui.LoadingBarMessage;
@@ -91,7 +92,11 @@ public class SeriesFragment extends Fragment {
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(mSerieListAdapter);
-        recyclerView.setEmptyView(rootView.findViewById(R.id.emptyView));
+
+        // set the empty view.
+        TextView emptyView = rootView.findViewById(R.id.emptyView);
+        emptyView.setText(mShowFavorite ? R.string.empty_msg_favorite : R.string.empty);
+        recyclerView.setEmptyView(emptyView);
 
         SeriesViewModel seriesViewModel = ViewModelProviders.of(this).get(SeriesViewModel.class);
 

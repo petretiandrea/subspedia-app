@@ -33,7 +33,8 @@ class Downloader {
     }
 
     public void download(DownloadManager.Request request, DownloadListener callback) {
-        executeRequest(request, callback);
+        mListener = Optional.of(callback);
+        executeRequest(request);
     }
 
     private void notifyStart(DownloadManager.Request request) {
@@ -48,7 +49,7 @@ class Downloader {
         mListener.executeIfPresent(downloadListener -> downloadListener.onFail(request, t));
     }
 
-    private void executeRequest(DownloadManager.Request request, DownloadListener callback) {
+    private void executeRequest(DownloadManager.Request request) {
         notifyStart(request);
 
         try {

@@ -31,5 +31,7 @@
     <string name="add_favorite">Preferita</string>
     <string name="favorite_serie">Preferite</string>
 
-    <string name="favorite_msg_empty_view">Nessuna serie trovata</string>
+    <string name="empty_msg_favorite">Nessuna serie preferita.\nAggiungi una serie tra quelle disponibili.</string>
+
+    <string name="empty" />
 </resources>
