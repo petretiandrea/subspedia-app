@@ -8,16 +8,14 @@ import android.support.annotation.Nullable;
 
 import com.andreapetreti.subspedia.AppExecutor;
 import com.andreapetreti.subspedia.common.ApiResponse;
-import com.andreapetreti.subspedia.common.NetworkBoundResource;
+import com.andreapetreti.subspedia.cache.NetworkBoundResource;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.common.SubspediaService;
 import com.andreapetreti.subspedia.database.SubsDatabase;
 import com.andreapetreti.subspedia.database.SubtitlesDao;
-import com.andreapetreti.subspedia.model.SerieWithSubtitles;
 import com.andreapetreti.subspedia.model.Subtitle;
 import com.andreapetreti.subspedia.model.SubtitleWithSerie;
 import com.annimon.stream.Stream;
-import com.annimon.stream.function.Consumer;
 
 import java.util.ArrayList;
 import java.util.Collections;

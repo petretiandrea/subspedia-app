@@ -1,4 +1,4 @@
-package com.andreapetreti.subspedia.common;
+package com.andreapetreti.subspedia.cache;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
 import com.andreapetreti.subspedia.AppExecutor;
+import com.andreapetreti.subspedia.common.Resource;
 
 public abstract class DBBoundResource<T> {
 

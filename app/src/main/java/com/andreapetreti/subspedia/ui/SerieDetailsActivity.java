@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -45,7 +46,9 @@ import com.andreapetreti.subspedia.ui.dialog.SubtitleDialog;
 import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
+import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
+import com.annimon.stream.function.Consumer;
 import com.annimon.stream.function.Function;
 import com.google.gson.JsonObject;
 import com.squareup.picasso.Cache;
@@ -139,7 +142,7 @@ public class SerieDetailsActivity extends AppCompatActivity {
                 .into(extendImage);
 
         // Create the adapter for tabs seasons
-        SparseArray<ArrayList<SubtitleWithSerie>> subtitles = new SparseArray<>();
+        SparseArray<List<SubtitleWithSerie>> subtitles = new SparseArray<>();
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), subtitles);
 
         // Set up the ViewPager with the sections adapter.
@@ -155,7 +158,6 @@ public class SerieDetailsActivity extends AppCompatActivity {
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-
 
         // retrieve the ViewModel for subtitle and tv serie
         SeriesViewModel seriesViewModel = ViewModelProviders.of(this).get(SeriesViewModel.class);
@@ -177,24 +179,17 @@ public class SerieDetailsActivity extends AppCompatActivity {
             }
 
             if(listResource.status == Resource.Status.SUCCESS) {
-                int currentSeason = 1;
-                if (listResource.data != null) {
-                    // TODO: use stream instead of two for loops
-                    for (int i = 0; i < listResource.data.size(); i++) {
-                        if(listResource.data.get(i).getSubtitle().getSeasonNumber() > (currentSeason - 1)) {
-                            // add new season.
-                            ArrayList<SubtitleWithSerie> subs = new ArrayList<>();
-                            for(SubtitleWithSerie s : listResource.data)
-                                if(s.getSubtitle().getSeasonNumber() == currentSeason)
-                                    subs.add(s);
+                Map<Integer, List<SubtitleWithSerie>> mapSeason = Stream.of(listResource.data)
+                        .collect(Collectors.groupingBy(subtitleWithSerie -> subtitleWithSerie.getSubtitle().getSeasonNumber()));
 
-                            String title = String.format(Locale.getDefault(), getString(R.string.season), currentSeason);
-                            tabLayout.addTab(tabLayout.newTab().setText(title));
-                            subtitles.put(currentSeason - 1, subs);
-                            currentSeason++;
-                        }
-                    }
-                }
+                tabLayout.removeAllTabs();
+
+                Stream.of(mapSeason).forEach(integerListEntry -> {
+                    String title = String.format(Locale.getDefault(), getString(R.string.season), integerListEntry.getKey());
+                    tabLayout.addTab(tabLayout.newTab().setText(title));
+                    subtitles.put(integerListEntry.getKey() - 1, integerListEntry.getValue());
+                });
+
                 progress.setVisibility(View.GONE);
                 tabLayout.setVisibility(View.VISIBLE);
                 mSectionsPagerAdapter.notifyDataSetChanged();
@@ -230,10 +225,10 @@ public class SerieDetailsActivity extends AppCompatActivity {
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(ArrayList<SubtitleWithSerie> subtitles) {
+        public static PlaceholderFragment newInstance(List<SubtitleWithSerie> subtitles) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
-            args.putSerializable(ARG_SUBTITLES, subtitles);
+            args.putSerializable(ARG_SUBTITLES, new ArrayList<>(subtitles));
             fragment.setArguments(args);
             return fragment;
         }
@@ -271,12 +266,12 @@ public class SerieDetailsActivity extends AppCompatActivity {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        SectionsPagerAdapter(FragmentManager fm, SparseArray<ArrayList<SubtitleWithSerie>> map) {
+        SectionsPagerAdapter(FragmentManager fm, SparseArray<List<SubtitleWithSerie>> map) {
             super(fm);
             mMap = map;
         }
 
-        private SparseArray<ArrayList<SubtitleWithSerie>> mMap;
+        private SparseArray<List<SubtitleWithSerie>> mMap;
 
         @Override
         public Fragment getItem(int position) {

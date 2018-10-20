@@ -24,7 +24,7 @@ public class AppExecutor {
     }
 
     private AppExecutor() {
-        mDiskExecutor = Executors.newSingleThreadExecutor();
+        mDiskExecutor = Executors.newFixedThreadPool(2);
         mNetworkExecutor = Executors.newFixedThreadPool(3);
         mMainThread = new MainThreadExecutor();
     }

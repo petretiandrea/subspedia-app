@@ -11,24 +11,21 @@ import android.support.annotation.Nullable;
 import com.andreapetreti.android_utils.Utils;
 import com.andreapetreti.subspedia.AppExecutor;
 import com.andreapetreti.subspedia.common.ApiResponse;
-import com.andreapetreti.subspedia.common.NetworkBoundResource;
+import com.andreapetreti.subspedia.cache.NetworkBoundResource;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.common.SubspediaService;
 import com.andreapetreti.subspedia.database.SerieDao;
 import com.andreapetreti.subspedia.database.SubsDatabase;
 import com.andreapetreti.subspedia.model.Serie;
-import com.annimon.stream.Collector;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.annimon.stream.function.Consumer;
+import com.annimon.stream.function.Function;
 import com.annimon.stream.function.Predicate;
 import com.google.gson.JsonObject;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -72,10 +69,16 @@ public class SerieRepository {
                         .filter(Serie::isFavorite)
                         .collect(Collectors.toMap(Serie::getIdSerie));
 
+                // save all series that is not favorite
                 Stream.of(item)
-                        .peek(serie -> mSerieDao.save(serie))
-                        .filter(serie -> dbSerie.containsKey(serie.getIdSerie()))
-                        .forEach(serie -> serie.setFavorite(dbSerie.get(serie.getIdSerie()).isFavorite()));
+                        .filterNot(value -> dbSerie.containsKey(value.getIdSerie()))
+                        .forEach(mSerieDao::save);
+
+                // save series that is already favorite
+                Stream.of(item)
+                        .filter(value -> dbSerie.containsKey(value.getIdSerie()))
+                        .peek(serie -> serie.setFavorite(true))
+                        .forEach(mSerieDao::save);
             }
 
             @Override

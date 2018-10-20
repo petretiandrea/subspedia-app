@@ -69,17 +69,9 @@ public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
         recyclerView.setAdapter(mSerieListAdapter);
 
         mSwipeRefreshLayout  = rootView.findViewById(R.id.swiperefresh);
-        mSwipeRefreshLayout.setOnRefreshListener(this::initViewModel);
+        mSwipeRefreshLayout.setOnRefreshListener(mTranslatingViewModel::refreshTranslatingSeries);
 
         mTranslatingViewModel = ViewModelProviders.of(this).get(SerieTranslatingViewModel.class);
-
-        initViewModel();
-
-        return rootView;
-    }
-
-    private void initViewModel() {
-        mTranslatingViewModel.getAllTranslatingSeries().removeObservers(this);
         mTranslatingViewModel.getAllTranslatingSeries().observe(this, listResource -> {
 
             if(listResource.status == Resource.Status.LOADING && !mSwipeRefreshLayout.isRefreshing())
@@ -92,5 +84,7 @@ public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
                     mSwipeRefreshLayout.setRefreshing(false);
             }
         });
+
+        return rootView;
     }
 }

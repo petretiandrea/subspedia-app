@@ -1,11 +1,9 @@
 package com.andreapetreti.subspedia;
 
 import android.Manifest;
-import android.arch.lifecycle.Observer;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -16,17 +14,21 @@ import android.support.v7.widget.Toolbar;
 
 
 import com.andreapetreti.android_utils.ui.BottomNavigationViewHelper;
-import com.andreapetreti.subspedia.database.SubsDatabase;
-import com.andreapetreti.subspedia.model.SubtitleWithSerie;
+import com.andreapetreti.subspedia.background.NewSubsWorker;
 import com.andreapetreti.subspedia.ui.fragment.SeriesFragment;
 import com.andreapetreti.subspedia.ui.fragment.LastSubtitlesFragment;
 import com.andreapetreti.subspedia.ui.fragment.TranslatingSeriesFragment;
-import com.annimon.stream.Stream;
-import com.annimon.stream.function.Consumer;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -87,12 +89,19 @@ public class DashboardActivity extends AppCompatActivity {
         mFragments.put(TAG_FRAGMENT_LAST_SUBS, LastSubtitlesFragment.newInstance());
 
         mCurrentSwitchFragment = (savedInstanceState != null) ? savedInstanceState.getString("current_frag", TAG_FRAGMENT_ALL_SERIES) : TAG_FRAGMENT_ALL_SERIES;
+
+
+        Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(NewSubsWorker.class, 1, TimeUnit.HOURS)
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager.getInstance().enqueueUniquePeriodicWork("periodic_new_sub", ExistingPeriodicWorkPolicy.KEEP, workRequest);
     }
 
     private void checkAppPermission() {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, RD_PERMISSION);
-            // if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE))
         }
     }
 
@@ -109,9 +118,14 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        checkAppPermission();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        checkAppPermission();
         switchFragment(mCurrentSwitchFragment);
     }
 

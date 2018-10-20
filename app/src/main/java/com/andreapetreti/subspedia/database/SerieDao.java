@@ -33,6 +33,9 @@ public interface SerieDao {
     @Query("SELECT * FROM serie WHERE mFavorite = 1 ORDER BY mName ASC")
     LiveData<List<Serie>> getFavoriteSeries();
 
+    @Query("SELECT * FROM serie WHERE mFavorite = 1 ORDER BY mName ASC")
+    List<Serie> getFavoriteSeriesSync();
+
     @Query("SELECT * FROM serie ORDER BY mName ASC")
     List<Serie> getAllSeriesSync();
 

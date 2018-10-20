@@ -1,21 +1,18 @@
 package com.andreapetreti.subspedia.repo;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
-import com.andreapetreti.subspedia.common.ApiResponse;
-import com.andreapetreti.subspedia.common.NetworkBoundResource;
+import com.andreapetreti.subspedia.AppExecutor;
+import com.andreapetreti.subspedia.cache.SimpleLiveDataCache;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.common.SubspediaService;
 import com.andreapetreti.subspedia.database.SerieTranslatingDao;
 import com.andreapetreti.subspedia.database.SubsDatabase;
-import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.SerieTranslating;
-import com.annimon.stream.Stream;
-import com.annimon.stream.function.Consumer;
+import com.annimon.stream.Objects;
 
 import java.util.List;
 
@@ -35,50 +32,40 @@ public class SerieTranslatingRepo {
      */
     private SubspediaService mSubspediaService;
 
+    private SimpleLiveDataCache<Resource<List<SerieTranslating>>> mTranslatingCache;
+
     public SerieTranslatingRepo(Context context) {
         SubsDatabase db = SubsDatabase.getDatabase(context);
         mSerieTranslatingDao = db.serieTranslatingDao();
         mSubspediaService = SubspediaService.Provider.getInstance();
+        mTranslatingCache = new SimpleLiveDataCache<>();
     }
 
-    public LiveData<Resource<List<SerieTranslating>>> getAllTranslatingSeries() {
-        return new NetworkBoundResource<List<SerieTranslating>, List<SerieTranslating>>() {
+    public LiveData<Resource<List<SerieTranslating>>> getAllTranslatingSeries(boolean forceFetch) {
+        // retrieve cached data
+        LiveData<Resource<List<SerieTranslating>>> cached = mTranslatingCache.get();
+        if(cached != null && !forceFetch) {
+            return cached;
+        }
 
+        final MutableLiveData<Resource<List<SerieTranslating>>> liveData = new MutableLiveData<>();
+        liveData.setValue(Resource.loading(null));
+
+        mTranslatingCache.put(liveData);
+        mSubspediaService.getAllTranslatingSeries().enqueue(new Callback<List<SerieTranslating>>() {
             @Override
-            protected void saveCallResult(@NonNull List<SerieTranslating> item) {
-                Stream.of(item).forEach(mSerieTranslatingDao::save);
+            public void onResponse(Call<List<SerieTranslating>> call, Response<List<SerieTranslating>> response) {
+                if(response.isSuccessful() && Objects.nonNull(response.body())) {
+                    liveData.setValue(Resource.success(response.body()));
+                }
             }
 
             @Override
-            protected boolean shouldFetch(@Nullable List<SerieTranslating> data) {
-                return true; // always check update, because translate serie change frequently.
+            public void onFailure(Call<List<SerieTranslating>> call, Throwable t) {
+                liveData.setValue(Resource.error(t.getMessage(), null));
             }
+        });
 
-            @NonNull
-            @Override
-            protected LiveData<List<SerieTranslating>> loadFromDb() {
-                return mSerieTranslatingDao.getAllTranslatingSeries();
-            }
-
-            @NonNull
-            @Override
-            protected LiveData<ApiResponse<List<SerieTranslating>>> createCall() {
-                MutableLiveData<ApiResponse<List<SerieTranslating>>> liveData = new MutableLiveData<>();
-
-                mSubspediaService.getAllTranslatingSeries().enqueue(new Callback<List<SerieTranslating>>() {
-                    @Override
-                    public void onResponse(Call<List<SerieTranslating>> call, Response<List<SerieTranslating>> response) {
-                        liveData.postValue(new ApiResponse<>(response));
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<SerieTranslating>> call, Throwable t) {
-                        liveData.postValue(new ApiResponse<>(t));
-                    }
-                });
-
-                return liveData;
-            }
-        }.asLiveData();
+        return liveData;
     }
 }
