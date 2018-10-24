@@ -148,8 +148,9 @@ public class SerieDetailsActivity extends AppCompatActivity {
         // Observe the specific serie, and change the icon of action button using the "favorite" status.
         seriesViewModel.getSerie(mSerie.getIdSerie()).observe(this, serie -> {
             mSerie = (serie != null) ? serie : mSerie;
-            favoriteActionBtn.setImageDrawable(
-                    ContextCompat.getDrawable(SerieDetailsActivity.this, mSerie.isFavorite() ? R.drawable.ic_star_white : R.drawable.ic_star_border_white));
+            favoriteActionBtn.setImageDrawable((mSerie.isFavorite()) ?
+                    ContextCompat.getDrawable(SerieDetailsActivity.this, R.drawable.ic_star_white) :
+                    ContextCompat.getDrawable(SerieDetailsActivity.this, R.drawable.ic_star_border_white));
         });
 
         // Observe for the subtitles of specific tv serie
