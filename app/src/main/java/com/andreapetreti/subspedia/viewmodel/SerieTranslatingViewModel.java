@@ -23,31 +23,24 @@ public class SerieTranslatingViewModel extends AndroidViewModel {
 
     private SerieTranslatingRepo mSerieTranslatingRepo;
 
-    private MutableLiveData<Resource<List<SerieTranslating>>> mTranslatingSeries;
+    private MediatorLiveData<Resource<List<SerieTranslating>>> mTranslatingSeries;
+    private LiveData<Resource<List<SerieTranslating>>> mSourceTranslatingSeries;
 
     public SerieTranslatingViewModel(@NonNull Application application) {
         super(application);
         mSerieTranslatingRepo = new SerieTranslatingRepo(application);
-        mTranslatingSeries = new MutableLiveData<>();
-        Transformations.switchMap(mTranslatingSeries, new Function<Resource<List<SerieTranslating>>, LiveData<? extends Object>>() {
-            @Override
-            public LiveData<? extends Object> apply(Resource<List<SerieTranslating>> input) {
-                if(input != null) {
-                    return mSerieTranslatingRepo.getAllTranslatingSeries(false);
-                }
-                return
-            }
-        })
+        mTranslatingSeries = new MediatorLiveData<>();
     }
 
     public LiveData<Resource<List<SerieTranslating>>> getAllTranslatingSeries() {
-
+        mSourceTranslatingSeries = mSerieTranslatingRepo.getAllTranslatingSeries(false);
+        mTranslatingSeries.addSource(mSourceTranslatingSeries, mTranslatingSeries::setValue);
         return mTranslatingSeries;
     }
 
-
     public void refreshTranslatingSeries() {
-
+        mTranslatingSeries.removeSource(mSourceTranslatingSeries);
+        mSourceTranslatingSeries = mSerieTranslatingRepo.getAllTranslatingSeries(true);
+        mTranslatingSeries.addSource(mSourceTranslatingSeries, mTranslatingSeries::setValue);
     }
-
 }

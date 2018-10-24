@@ -1,28 +1,23 @@
 package com.andreapetreti.subspedia.ui;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.os.Bundle;
 import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -32,35 +27,22 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.andreapetreti.android_utils.PicassoSingleton;
-import com.andreapetreti.android_utils.adapter.ItemClickListener;
-import com.andreapetreti.subspedia.AppExecutor;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
-import com.andreapetreti.subspedia.database.SerieDao;
-import com.andreapetreti.subspedia.database.SubsDatabase;
 import com.andreapetreti.subspedia.model.Serie;
-import com.andreapetreti.subspedia.model.Subtitle;
 import com.andreapetreti.subspedia.model.SubtitleWithSerie;
 import com.andreapetreti.subspedia.ui.adapter.SubtitleListAdapter;
 import com.andreapetreti.subspedia.ui.dialog.SubtitleDialog;
-import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
 import com.annimon.stream.Collectors;
+import com.annimon.stream.Objects;
 import com.annimon.stream.Stream;
-import com.annimon.stream.function.Consumer;
-import com.annimon.stream.function.Function;
-import com.google.gson.JsonObject;
-import com.squareup.picasso.Cache;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Activity that shows all subtitles of specific tv serie
@@ -178,7 +160,9 @@ public class SerieDetailsActivity extends AppCompatActivity {
                 tabLayout.setVisibility(View.GONE);
             }
 
-            if(listResource.status == Resource.Status.SUCCESS) {
+            if(listResource.status == Resource.Status.SUCCESS ||
+                    (listResource.status == Resource.Status.LOADING && Objects.nonNull(listResource.data))) {
+
                 Map<Integer, List<SubtitleWithSerie>> mapSeason = Stream.of(listResource.data)
                         .collect(Collectors.groupingBy(subtitleWithSerie -> subtitleWithSerie.getSubtitle().getSeasonNumber()));
 
@@ -190,9 +174,11 @@ public class SerieDetailsActivity extends AppCompatActivity {
                     subtitles.put(integerListEntry.getKey() - 1, integerListEntry.getValue());
                 });
 
-                progress.setVisibility(View.GONE);
                 tabLayout.setVisibility(View.VISIBLE);
                 mSectionsPagerAdapter.notifyDataSetChanged();
+
+                if(listResource.status == Resource.Status.SUCCESS)
+                    progress.setVisibility(View.GONE);
             }
         });
 

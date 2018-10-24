@@ -21,15 +21,18 @@ public class SeriesViewModel extends AndroidViewModel {
     private SerieRepository mSerieRepository;
 
     private LiveData<Resource<List<Serie>>> mAllSeries;
+    private MediatorLiveData<Resource<List<Serie>>> mRefreshableAllSeries;
 
     public SeriesViewModel(@NonNull Application application) {
         super(application);
         mSerieRepository = new SerieRepository(application);
-        mAllSeries = mSerieRepository.getAllSeries();
+        mRefreshableAllSeries = new MediatorLiveData<>();
+        mAllSeries = mSerieRepository.getAllSeries(false);
+        mRefreshableAllSeries.addSource(mAllSeries, this::postNewSeries);
     }
 
     public LiveData<Resource<List<Serie>>> getAllSeries() {
-        return mAllSeries;
+        return mRefreshableAllSeries;
     }
 
     public LiveData<Serie> getSerie(int idSerie) {
@@ -46,5 +49,15 @@ public class SeriesViewModel extends AndroidViewModel {
 
     public void setFavoriteSerie(int idSerie, boolean addRemove) {
         mSerieRepository.addSerieToFavorite(idSerie, addRemove);
+    }
+
+    private void postNewSeries(Resource<List<Serie>> series) {
+        mRefreshableAllSeries.setValue(series);
+    }
+
+    public void refreshAllSeries() {
+        mRefreshableAllSeries.removeSource(mAllSeries);
+        mAllSeries = mSerieRepository.getAllSeries(true);
+        mRefreshableAllSeries.addSource(mAllSeries, this::postNewSeries);
     }
 }

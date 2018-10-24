@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.Constraints;
+import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -35,7 +35,7 @@ public class DashboardActivity extends AppCompatActivity {
     /**
      * READ WRITE PERMISSION REQUEST CODE
      */
-    private static final int RD_PERMISSION = 100;
+    private static final int RW_PERMISSION = 100;
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -90,9 +90,15 @@ public class DashboardActivity extends AppCompatActivity {
 
         mCurrentSwitchFragment = (savedInstanceState != null) ? savedInstanceState.getString("current_frag", TAG_FRAGMENT_ALL_SERIES) : TAG_FRAGMENT_ALL_SERIES;
 
+        // setup periodic worker for check new subtitles
+        setupNewSubsWorker();
+    }
 
+    private void setupNewSubsWorker() {
         Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
-        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(NewSubsWorker.class, 1, TimeUnit.HOURS)
+
+        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(NewSubsWorker.class, Constants.PERIOD_SCHEDULE_NOTIFICATION_HOUR, TimeUnit.HOURS)
+                .setInputData(new Data.Builder().putLong(Constants.KEY_PERIOD_SCHEDULE_NOTIFICATION, Constants.PERIOD_SCHEDULE_NOTIFICATION_MILLIS).build())
                 .setConstraints(constraints)
                 .build();
 
@@ -101,14 +107,14 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void checkAppPermission() {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, RD_PERMISSION);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, RW_PERMISSION);
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case RD_PERMISSION:
+            case RW_PERMISSION:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     switchFragment(mCurrentSwitchFragment);
                 else

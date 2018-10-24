@@ -2,9 +2,11 @@ package com.andreapetreti.subspedia.ui.fragment;
 
 
 import android.app.SearchManager;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -23,11 +25,14 @@ import com.andreapetreti.android_utils.adapter.EmptyRecyclerView;
 import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
+import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 
 import org.w3c.dom.Text;
+
+import java.util.List;
 
 import static android.content.Context.SEARCH_SERVICE;
 
@@ -52,6 +57,7 @@ public class SeriesFragment extends Fragment {
      * Loading bar and message showed when list is loading.
      */
     private LoadingBarMessage mLoadingBarMessage;
+    private SwipeRefreshLayout mRefreshLayout;
 
     public static SeriesFragment newInstance(boolean showFavorite) {
         SeriesFragment seriesFragment = new SeriesFragment();
@@ -80,7 +86,7 @@ public class SeriesFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_series, container, false);
 
-        SwipeRefreshLayout refreshLayout = rootView.findViewById(R.id.swiperefresh);
+        mRefreshLayout = rootView.findViewById(R.id.swiperefresh);
         mLoadingBarMessage = rootView.findViewById(R.id.progressMessage);
         mLoadingBarMessage.getProgressBar().setIndeterminate(true);
         mSerieListAdapter = new SerieListAdapter(getActivity());
@@ -94,44 +100,12 @@ public class SeriesFragment extends Fragment {
         emptyView.setText(getString(mShowFavorite ? R.string.empty_msg_favorite : R.string.empty));
         recyclerView.setEmptyView(emptyView);
 
-        // TODO: disable refresh if mShowFavorite is true.
 
         SeriesViewModel seriesViewModel = ViewModelProviders.of(this).get(SeriesViewModel.class);
-
         if(mShowFavorite)
-            seriesViewModel.getFavoriteSeries().observe(this, series -> {
-                mLoadingBarMessage.setVisibility(View.GONE);
-                if(series != null)
-                    mSerieListAdapter.setSeries(series);
-            });
+            setupFavoriteSeries(seriesViewModel);
         else
-            seriesViewModel.getAllSeries().observe(this, listResource -> {
-                // with no data and loading status, there is no data to show, start a progress bar
-                if(listResource.status == Resource.Status.LOADING) {
-                    if(listResource.data == null || listResource.data.isEmpty())
-                        mLoadingBarMessage.setVisibility(View.VISIBLE);
-                }
-
-                // generally if data are available, set it.
-                if(listResource.data != null) {
-                    mSerieListAdapter.setSeries(listResource.data);
-
-                    // if data are available, not show the central progress bar.
-                    mLoadingBarMessage.setVisibility(View.GONE);
-
-                    /*if(listResource.status == Resource.Status.LOADING) {
-                        if(mActivityLoadingBar != null)
-                            mActivityLoadingBar.showLoading();
-                    } else if(listResource.status == Resource.Status.SUCCESS) {
-                        if(mActivityLoadingBar != null)
-                            mActivityLoadingBar.hideLoading();
-                        if(refreshLayout.isRefreshing())
-                            refreshLayout.setRefreshing(false);
-                    }*/
-                }
-            });
-
-       // refreshLayout.setOnRefreshListener(seriesViewModel::forceRefresh);
+            setupAllSeries(seriesViewModel);
 
         mSerieListAdapter.setItemClickListener((view, adapterPosition) -> {
             Intent intent = SerieDetailsActivity.obtainIntent(getActivity(), mSerieListAdapter.itemAt(adapterPosition));
@@ -141,6 +115,36 @@ public class SeriesFragment extends Fragment {
         setHasOptionsMenu(true);
 
         return rootView;
+    }
+
+    private void setupAllSeries(SeriesViewModel viewModel) {
+        mRefreshLayout.setEnabled(true);
+        mRefreshLayout.setOnRefreshListener(viewModel::refreshAllSeries);
+        viewModel.getAllSeries().observe(this, listResource -> {
+            // show loading bar message
+            if(listResource.status == Resource.Status.LOADING) {
+                if ((listResource.data == null || listResource.data.isEmpty()) && !mRefreshLayout.isRefreshing())
+                    mLoadingBarMessage.setVisibility(View.VISIBLE);
+            }
+
+            // set data
+            if(listResource.status == Resource.Status.SUCCESS && listResource.data != null) {
+                mSerieListAdapter.setSeries(listResource.data);
+                mLoadingBarMessage.setVisibility(View.GONE);
+
+                if(mRefreshLayout.isRefreshing())
+                    mRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    private void setupFavoriteSeries(SeriesViewModel viewModel) {
+        mRefreshLayout.setEnabled(false);
+        viewModel.getFavoriteSeries().observe(this, series -> {
+            mLoadingBarMessage.setVisibility(View.GONE);
+            if (series != null)
+                mSerieListAdapter.setSeries(series);
+        });
     }
 
     @Override
@@ -164,5 +168,4 @@ public class SeriesFragment extends Fragment {
             }
         });
     }
-
 }

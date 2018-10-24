@@ -59,7 +59,7 @@ public class SerieRepository {
         return mSerieDao.getFavoriteSeries();
     }
 
-    public LiveData<Resource<List<Serie>>> getAllSeries() {
+    public LiveData<Resource<List<Serie>>> getAllSeries(boolean forceFetch) {
         return new NetworkBoundResource<List<Serie>, List<Serie>>() {
 
             @Override
@@ -86,7 +86,7 @@ public class SerieRepository {
                 // Get current time
                 long last = mSharedPreferences.getLong(SERIE_LAST_UPDATE, 0);
                 boolean needUpdate = Utils.checkTimeDifference(last, THRESHOLD_UPDATE);
-                return data == null || needUpdate;
+                return data == null || needUpdate || forceFetch;
             }
 
             @NonNull
