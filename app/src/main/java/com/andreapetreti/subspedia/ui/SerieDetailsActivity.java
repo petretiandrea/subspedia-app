@@ -3,6 +3,10 @@ package com.andreapetreti.subspedia.ui;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,6 +18,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,6 +43,8 @@ import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Objects;
 import com.annimon.stream.Stream;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,12 +123,16 @@ public class SerieDetailsActivity extends AppCompatActivity {
         FloatingActionButton favoriteActionBtn = findViewById(R.id.floatingActionFavorite);
 
         // Load with picasso the big image of tv serie
-        ImageView extendImage = findViewById(R.id.header);
-        PicassoSingleton.getSharedInstance(this)
-                .load(mSerie.getLinkBannerImage())
-                .fit()
-                .centerCrop(Gravity.CENTER)
-                .into(extendImage);
+        AppCompatImageView extendImage = findViewById(R.id.header);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            extendImage.setForeground(getDrawable(R.drawable.gradient_shape));
+            PicassoSingleton.getSharedInstance(this).load(mSerie.getLinkBannerImage()).fit()
+                    .centerCrop(Gravity.CENTER).into(extendImage);
+        } else {
+            extendImage.setImageResource(R.drawable.gradient_shape);
+            PicassoSingleton.getSharedInstance(this).load(mSerie.getLinkBannerImage()).fit()
+                    .centerCrop(Gravity.CENTER).into(BackgroundTarget.of(extendImage));
+        }
 
         // Create the adapter for tabs seasons
         SparseArray<List<SubtitleWithSerie>> subtitles = new SparseArray<>();
