@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,6 +19,8 @@ import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.model.SerieTranslating;
+import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
+import com.andreapetreti.subspedia.ui.adapter.ItemClickListener;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.viewmodel.SerieTranslatingViewModel;
 
@@ -66,6 +70,8 @@ public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
 
         RecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewTranslating);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(mSerieListAdapter);
 
         mSwipeRefreshLayout  = rootView.findViewById(R.id.swiperefresh);
@@ -84,6 +90,10 @@ public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
                     mSwipeRefreshLayout.setRefreshing(false);
             }
         });
+
+        mSerieListAdapter.setItemClickListener(
+                (view, adapterPosition) -> startActivity(SerieDetailsActivity.obtainIntent(getActivity(), mSerieListAdapter.itemAt(adapterPosition)))
+        );
 
         return rootView;
     }
