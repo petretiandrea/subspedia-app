@@ -58,6 +58,13 @@ public class Subtitle implements Parcelable {
         mCurrentMillis = System.currentTimeMillis();
     }
 
+    /* Used for testing module */
+    Subtitle(int idSerie, String episodeTitle, String date) {
+        mIdSerie = idSerie;
+        mEpisodeTitle = episodeTitle;
+        mDate = date;
+    }
+
     protected Subtitle(Parcel in) {
         mIdSerie = in.readInt();
         mSeasonNumber = in.readInt();

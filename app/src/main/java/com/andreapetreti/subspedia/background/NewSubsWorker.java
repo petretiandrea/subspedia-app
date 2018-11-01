@@ -1,11 +1,7 @@
 package com.andreapetreti.subspedia.background;
 
-import android.annotation.TargetApi;
-import android.app.job.JobParameters;
-import android.app.job.JobService;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
@@ -16,13 +12,10 @@ import com.andreapetreti.subspedia.database.SubsDatabase;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.Subtitle;
 import com.andreapetreti.subspedia.model.SubtitleWithSerie;
+import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Optional;
 import com.annimon.stream.Stream;
-import com.annimon.stream.function.Consumer;
-import com.annimon.stream.function.Function;
-import com.annimon.stream.function.Predicate;
-import com.annimon.stream.function.ToBooleanFunction;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -41,13 +34,11 @@ public class NewSubsWorker extends Worker {
 
     private static final String KEY_LAST_CHECK = "com.andreapetreti.subspedia.last_check";
 
-    private SimpleDateFormat mSimpleDateFormat;
     private NotificationSubspedia mNotificationSubspedia;
 
     public NewSubsWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         mNotificationSubspedia = new NotificationSubspedia(context);
-        mSimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
     }
 
     @NonNull
@@ -60,17 +51,17 @@ public class NewSubsWorker extends Worker {
         long threshold = getInputData().getLong(Constants.KEY_PERIOD_SCHEDULE_NOTIFICATION, 0);
         long lastCheck = sharedPreferences.getLong(KEY_LAST_CHECK, 0);
 
+
+
         try {
             Response<List<Subtitle>> subs = mSubspediaService.getLastSubtitles().execute();
             List<Serie> favoriteSeries = mSerieDao.getFavoriteSeriesSync();
 
             if (subs.isSuccessful() && subs.body() != null) {
-                List<SubtitleWithSerie> newSubs = Stream.of(subs.body())
-                        .filter(value -> parseDate(value.getDate()).mapToBoolean(date -> date.getTime() >= (lastCheck - threshold)).orElse(false))
-                        .flatMap(subtitle -> Stream.of(favoriteSeries).filter(value -> value.getIdSerie() == subtitle.getIdSerie()).map(serie -> new SubtitleWithSerie(subtitle, serie)))
-                        .distinct()
-                        .collect(Collectors.toList());
-
+                List<SubtitleWithSerie> newSubs = SubspediaUtils.filterNewSubtitles(subs.body(),
+                        favoriteSeries,
+                        lastCheck,
+                        threshold);
                 sharedPreferences.edit().putLong(KEY_LAST_CHECK, Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis()).apply();
 
                 // set notifications
@@ -82,14 +73,5 @@ public class NewSubsWorker extends Worker {
             e.printStackTrace();
         }
         return Result.RETRY;
-    }
-
-    private Optional<Date> parseDate(String source) {
-        try {
-            mSimpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            return Optional.of(mSimpleDateFormat.parse(source));
-        } catch (ParseException e) {
-            return Optional.empty();
-        }
     }
 }

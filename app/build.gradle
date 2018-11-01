@@ -36,6 +36,7 @@ dependencies {
 
     def work_version = "1.0.0-alpha10"
     implementation "android.arch.work:work-runtime:$work_version"
+    androidTestImplementation "android.arch.work:work-testing:$work_version"
 
     def SUPPORT_VERSION = "27.1.1"
     implementation "com.android.support:support-v4:$SUPPORT_VERSION"
