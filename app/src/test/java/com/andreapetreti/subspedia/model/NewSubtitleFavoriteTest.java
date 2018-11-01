@@ -12,9 +12,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -40,6 +44,25 @@ public class NewSubtitleFavoriteTest {
             s.setName("Serie_" + value);
             return s;
         }).collect(Collectors.toList());
+    }
+
+    @Test
+    public void testUTCTime() throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date dateTest = dateFormat.parse("2018-10-28 22:47:00");
+        OffsetDateTime utc = OffsetDateTime.now(ZoneOffset.UTC);
+
+        // convert dateTest to utc
+        long dateTestUTC = SubspediaUtils.parseDateToUTC("yyyy-MM-dd HH:mm:ss",
+                dateFormat.format(dateTest)).get().toInstant().toEpochMilli();
+
+        // assert dateTest different to same date but UTC format
+        Assert.assertNotEquals(dateTestUTC, dateTest.toInstant().toEpochMilli());
+        Assert.assertEquals(dateTestUTC, dateTest.toInstant().toEpochMilli());
+
+        long time2 = Date.from(utc.toInstant()).toInstant().toEpochMilli();
+        System.out.println(time2);
+
     }
 
     @Test

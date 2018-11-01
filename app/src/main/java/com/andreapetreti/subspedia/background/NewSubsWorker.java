@@ -51,8 +51,6 @@ public class NewSubsWorker extends Worker {
         long threshold = getInputData().getLong(Constants.KEY_PERIOD_SCHEDULE_NOTIFICATION, 0);
         long lastCheck = sharedPreferences.getLong(KEY_LAST_CHECK, 0);
 
-
-
         try {
             Response<List<Subtitle>> subs = mSubspediaService.getLastSubtitles().execute();
             List<Serie> favoriteSeries = mSerieDao.getFavoriteSeriesSync();
