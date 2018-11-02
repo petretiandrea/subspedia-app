@@ -3,9 +3,6 @@ package com.andreapetreti.subspedia.ui;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,7 +25,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 
 import com.andreapetreti.android_utils.PicassoSingleton;
@@ -43,10 +40,13 @@ import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Objects;
 import com.annimon.stream.Stream;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
+import com.annimon.stream.function.Function;
+import com.jaeger.library.StatusBarUtil;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -124,15 +124,9 @@ public class SerieDetailsActivity extends AppCompatActivity {
 
         // Load with picasso the big image of tv serie
         AppCompatImageView extendImage = findViewById(R.id.header);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            extendImage.setForeground(getDrawable(R.drawable.gradient_shape));
-            PicassoSingleton.getSharedInstance(this).load(mSerie.getLinkBannerImage()).fit()
-                    .centerCrop(Gravity.CENTER).into(extendImage);
-        } else {
-            extendImage.setImageResource(R.drawable.gradient_shape);
-            PicassoSingleton.getSharedInstance(this).load(mSerie.getLinkBannerImage()).fit()
-                    .centerCrop(Gravity.CENTER).into(BackgroundTarget.of(extendImage));
-        }
+        PicassoSingleton.getSharedInstance(this)
+                .load(mSerie.getLinkBannerImage())
+                .into(TargetImageGradient.of(extendImage, R.drawable.gradient_shape));
 
         // Create the adapter for tabs seasons
         SparseArray<List<SubtitleWithSerie>> subtitles = new SparseArray<>();
@@ -176,7 +170,12 @@ public class SerieDetailsActivity extends AppCompatActivity {
                     (listResource.status == Resource.Status.LOADING && Objects.nonNull(listResource.data))) {
 
                 Map<Integer, List<SubtitleWithSerie>> mapSeason = Stream.of(listResource.data)
+                        .sortBy(subtitleWithSerie -> subtitleWithSerie.getSubtitle().getSeasonNumber())
                         .collect(Collectors.groupingBy(subtitleWithSerie -> subtitleWithSerie.getSubtitle().getSeasonNumber()));
+
+                mapSeason = Stream.of(mapSeason.entrySet())
+                        .sorted((e1,e2)-> Integer.compare(e1.getKey(), e2.getKey()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
                 tabLayout.removeAllTabs();
 

@@ -2,6 +2,7 @@ package com.andreapetreti.subspedia.utils;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.v4.content.ContextCompat;
 import android.webkit.MimeTypeMap;
 
 import com.andreapetreti.android_utils.downloadmanager.DownloadManager;
@@ -46,6 +47,7 @@ public class SubspediaUtils {
         DownloadManager downloadManager = new DownloadManager.Builder(context)
                 .setSmallIcon(R.mipmap.ic_small_notification)
                 .setLargeIcon(R.mipmap.ic_launcher_round)
+                .setNotificationColor(ContextCompat.getColor(context, R.color.primaryColor))
                 .build();
 
         DownloadManager.Request request = new DownloadManager.Request();

@@ -97,7 +97,7 @@ public class SeriesFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(mSerieListAdapter);
         TextView emptyView = rootView.findViewById(R.id.emptyView);
-        emptyView.setText(getString(mShowFavorite ? R.string.empty_msg_favorite : R.string.empty));
+        emptyView.setText(getString(mShowFavorite ? R.string.empty_msg_favorite : R.string.empty_msg_series));
         recyclerView.setEmptyView(emptyView);
 
 

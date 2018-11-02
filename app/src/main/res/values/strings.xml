@@ -32,6 +32,7 @@
     <string name="favorite_serie">Preferite</string>
 
     <string name="empty_msg_favorite">Nessuna serie preferita.\nAggiungi una serie tra quelle disponibili.</string>
+    <string name="empty_msg_series">Nessuna serie TV presente. Controlla la tua connessione ad internet.</string>
 
     <string name="empty" />
     <string name="notification_title_new_subtitles">Nuovi sottotitoli per le tue serie preferite.</string>

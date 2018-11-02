@@ -86,7 +86,7 @@ public class SerieRepository {
                 // Get current time
                 long last = mSharedPreferences.getLong(SERIE_LAST_UPDATE, 0);
                 boolean needUpdate = Utils.checkTimeDifference(last, THRESHOLD_UPDATE);
-                return data == null || needUpdate || forceFetch;
+                return data == null || data.isEmpty() || needUpdate || forceFetch;
             }
 
             @NonNull

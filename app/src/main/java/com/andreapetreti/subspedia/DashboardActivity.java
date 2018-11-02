@@ -49,6 +49,9 @@ public class DashboardActivity extends AppCompatActivity {
 
     private String mCurrentSwitchFragment;
 
+    /* Fix for "Can not perform this action after onSaveInstanceState" */
+    private boolean mPermissionsGranted;
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
                 switch (item.getItemId()) {
@@ -109,7 +112,7 @@ public class DashboardActivity extends AppCompatActivity {
     private void checkAppPermission() {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, RW_PERMISSION);
-        }
+        } else mPermissionsGranted = true;
     }
 
     @Override
@@ -117,23 +120,20 @@ public class DashboardActivity extends AppCompatActivity {
         switch (requestCode) {
             case RW_PERMISSION:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    switchFragment(mCurrentSwitchFragment);
+                    mPermissionsGranted = true;
                 else
                     finish();
                 break;
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        checkAppPermission();
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        switchFragment(mCurrentSwitchFragment);
+        checkAppPermission();
+        if(mPermissionsGranted)
+            switchFragment(mCurrentSwitchFragment);
     }
 
     @Override
