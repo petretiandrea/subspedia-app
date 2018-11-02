@@ -1,6 +1,7 @@
 package com.andreapetreti.subspedia.model;
 
 import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.Ignore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -14,11 +15,13 @@ public class SubtitleWithSerie implements Parcelable {
 
     public SubtitleWithSerie() {}
 
+    @Ignore
     public SubtitleWithSerie(Subtitle subtitle, Serie serie) {
         mSubtitle = subtitle;
         mSerie = serie;
     }
 
+    @Ignore
     protected SubtitleWithSerie(Parcel in) {
         mSubtitle = in.readParcelable(Subtitle.class.getClassLoader());
         mSerie = in.readParcelable(Serie.class.getClassLoader());

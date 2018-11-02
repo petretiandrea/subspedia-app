@@ -4,6 +4,8 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -12,11 +14,17 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.FileProvider;
 
 import com.andreapetreti.android_utils.R;
 
 public class DownloadIntentService extends IntentService implements Downloader.DownloadListener {
-
+    /* Intent params */
+    protected static String REQUEST = "request";
+    protected static String SMALL_ICON = "small_icon";
+    protected static String LARGE_ICON = "large_icon";
+    protected static String NOTIFICATION_COLOR = "notification_color";
+    protected static String COMPLETE_PENDING_INTENT = "complete_pending_intent";
 
     private static final String CHANNEL_ONE_ID = "download_intent_service";
     private static final CharSequence CHANNEL_ONE_NAME = "Download Channel";
@@ -25,7 +33,20 @@ public class DownloadIntentService extends IntentService implements Downloader.D
     private NotificationCompat.Builder mBuilder;
     private Downloader mDownloader;
 
+    private PendingIntent mCompleteIntent;
+
     private int mNotificationId;
+
+    public static Intent obtainIntent(Context context, DownloadManager.Request request, int smallIcon,
+                                      int largeIcon, int notificationColor, PendingIntent completeIntent) {
+        Intent intent = new Intent(context, DownloadIntentService.class);
+        intent.putExtra(REQUEST, request);
+        intent.putExtra(SMALL_ICON, smallIcon);
+        intent.putExtra(LARGE_ICON, largeIcon);
+        intent.putExtra(NOTIFICATION_COLOR, notificationColor);
+        intent.putExtra(COMPLETE_PENDING_INTENT, completeIntent);
+        return intent;
+    }
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -57,18 +78,23 @@ public class DownloadIntentService extends IntentService implements Downloader.D
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        Parcelable parcelable = intent.getParcelableExtra(DownloadManager.REQUEST);
+        Parcelable parcelable = intent.getParcelableExtra(REQUEST);
         if(parcelable instanceof DownloadManager.Request) {
             DownloadManager.Request request = (DownloadManager.Request) parcelable;
 
             // resource for notification
-            int smallIcon = intent.getIntExtra(DownloadManager.SMALL_ICON, -1);
-            int largeIcon = intent.getIntExtra(DownloadManager.LARGE_ICON, -1);
+            int smallIcon = intent.getIntExtra(SMALL_ICON, -1);
+            int largeIcon = intent.getIntExtra(LARGE_ICON, -1);
+            int color = intent.getIntExtra(NOTIFICATION_COLOR, -1);
+            mCompleteIntent = intent.getParcelableExtra(COMPLETE_PENDING_INTENT);
 
             mNotificationId = request.getId();
             mBuilder = new NotificationCompat.Builder(this, CHANNEL_ONE_ID)
                     .setSmallIcon(smallIcon)
                     .setProgress(0, 0, true);
+
+            if(color != -1)
+                mBuilder.setColor(color);
 
             if(largeIcon != -1)
                 mBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(), largeIcon));
@@ -107,6 +133,7 @@ public class DownloadIntentService extends IntentService implements Downloader.D
                     .setContentText(getString(R.string.download_complete))
                     .setProgress(0, 0, false)
                     .setNumber(request.getId())
+                    .setContentIntent(mCompleteIntent)
                     .setOngoing(false)
                     .setAutoCancel(false);
 
@@ -117,6 +144,16 @@ public class DownloadIntentService extends IntentService implements Downloader.D
     @Override
     public void onFail(DownloadManager.Request request, Throwable t) {
         mBuilder.setContentText(getString(R.string.download_fail)).setProgress(0, 0, false);
+        mBuilder.setOngoing(false);
+        mBuilder.setAutoCancel(false);
         mNotificationManager.notify(request.getId(), mBuilder.build());
+    }
+
+    private Intent intentOpenFile(DownloadManager.Request request) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        //String mimeType = getContentResolver().getType(request.getPath());
+        intent.setDataAndType(request.getPath(), "*/*");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        return intent;
     }
 }

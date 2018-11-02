@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
@@ -35,9 +36,13 @@ import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -60,9 +65,10 @@ public class SubtitleDialog extends AppCompatDialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSubtitle = getArguments().getParcelable(KEY_SUBTITLE);
+        mSubtitle = Objects.requireNonNull(getArguments()).getParcelable(KEY_SUBTITLE);
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
@@ -72,14 +78,20 @@ public class SubtitleDialog extends AppCompatDialogFragment {
         PicassoSingleton.getSharedInstance(getContext()).load(mSubtitle.getSubtitle().getSubtitleImage()).into(thub);
 
         TextView title = dialogView.findViewById(R.id.title);
-        title.setText(mSubtitle.getSubtitle().getEpisodeTitle());
-
-        TextView meta = dialogView.findViewById(R.id.meta);
-        meta.setText(String.format(Locale.getDefault(),
+        title.setText(String.format(Locale.getDefault(),
                 "%dx%d - %s",
                 mSubtitle.getSubtitle().getSeasonNumber(),
                 mSubtitle.getSubtitle().getEpisodeNumber(),
-                mSubtitle.getSubtitle().getDate()));
+                mSubtitle.getSubtitle().getEpisodeTitle()));
+
+        TextView meta = dialogView.findViewById(R.id.meta);
+        meta.setText(String.format(Locale.getDefault(),
+                "%s - %s",
+                mSubtitle.getSerie().getName(),
+                mSubtitle.getSerie().getStatus()));
+
+        TextView viewDate = dialogView.findViewById(R.id.date);
+        viewDate.setText(SubspediaUtils.formatToDefaultDate(mSubtitle.getSubtitle().getDateObj().orElse(new Date())));
 
         TextView description = dialogView.findViewById(R.id.description);
         description.setText(Html.fromHtml(mSubtitle.getSubtitle().getDescription()));
@@ -88,7 +100,7 @@ public class SubtitleDialog extends AppCompatDialogFragment {
         builder.setView(dialogView);
         builder.setPositiveButton(getString(R.string.download), (dialog, which) -> SubspediaUtils.downloadSubtitle(getActivity(), mSubtitle));
 
-        builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
+        builder.setNeutralButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
         builder.setCancelable(true);
         return builder.create();
     }

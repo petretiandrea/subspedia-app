@@ -1,22 +1,25 @@
 package com.andreapetreti.subspedia.model;
 
 import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
-import android.arch.persistence.room.Relation;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.andreapetreti.subspedia.utils.SubspediaUtils;
+import com.annimon.stream.Optional;
 import com.google.gson.annotations.SerializedName;
 
-import static android.arch.persistence.room.ForeignKey.CASCADE;
+import java.util.Date;
+
+import retrofit2.http.PUT;
 
 @Entity(primaryKeys = {"mIdSerie", "mSeasonNumber", "mEpisodeNumber"},
         indices=@Index(value="mIdSerie"))
 public class Subtitle implements Parcelable {
+
+    private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     @SerializedName("id_serie")
     private int mIdSerie;
@@ -52,19 +55,21 @@ public class Subtitle implements Parcelable {
     private int mThanks;
 
     @ColumnInfo(name = "last_write")
-    private long mCurrentMillis;
+    private long mLastWriteDB;
 
     public Subtitle() {
-        mCurrentMillis = System.currentTimeMillis();
+        mLastWriteDB = System.currentTimeMillis();
     }
 
     /* Used for testing module */
+    @Ignore
     Subtitle(int idSerie, String episodeTitle, String date) {
         mIdSerie = idSerie;
         mEpisodeTitle = episodeTitle;
         mDate = date;
     }
 
+    @Ignore
     protected Subtitle(Parcel in) {
         mIdSerie = in.readInt();
         mSeasonNumber = in.readInt();
@@ -77,7 +82,7 @@ public class Subtitle implements Parcelable {
         mDescription = in.readString();
         mDate = in.readString();
         mThanks = in.readInt();
-        mCurrentMillis = in.readLong();
+        mLastWriteDB = in.readLong();
     }
 
     public static final Creator<Subtitle> CREATOR = new Creator<Subtitle>() {
@@ -172,6 +177,10 @@ public class Subtitle implements Parcelable {
         mDate = date;
     }
 
+    public Optional<Date> getDateObj() {
+        return SubspediaUtils.parseDate(DATE_FORMAT, getDate());
+    }
+
     public int getThanks() {
         return mThanks;
     }
@@ -180,12 +189,12 @@ public class Subtitle implements Parcelable {
         mThanks = thanks;
     }
 
-    public long getCurrentMillis() {
-        return mCurrentMillis;
+    public long getLastWriteDB() {
+        return mLastWriteDB;
     }
 
-    public void setCurrentMillis(long currentMillis) {
-        mCurrentMillis = currentMillis;
+    public void setLastWriteDB(long lastWriteDB) {
+        mLastWriteDB = lastWriteDB;
     }
 
     @Override
@@ -223,6 +232,6 @@ public class Subtitle implements Parcelable {
         dest.writeString(mDescription);
         dest.writeString(mDate);
         dest.writeInt(mThanks);
-        dest.writeLong(mCurrentMillis);
+        dest.writeLong(mLastWriteDB);
     }
 }

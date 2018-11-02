@@ -88,4 +88,18 @@ public class SubspediaUtils {
             return Optional.empty();
         }
     }
+
+    public static Optional<Date> parseDate(String format, String source) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format, Locale.getDefault());
+        try {
+            return Optional.of(dateFormat.parse(source));
+        } catch (ParseException e) {
+            return Optional.empty();
+        }
+    }
+
+    public static String formatToDefaultDate(Date date) {
+        return new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                .format(date);
+    }
 }

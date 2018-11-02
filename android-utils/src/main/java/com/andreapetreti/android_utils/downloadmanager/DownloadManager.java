@@ -3,6 +3,7 @@ package com.andreapetreti.android_utils.downloadmanager;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcel;
@@ -16,26 +17,21 @@ public class DownloadManager extends ContextWrapper {
 
     private static int CURRENT_DOWNLOAD_ID = 1;
 
-    protected static String REQUEST = "request";
-    protected static String SMALL_ICON = "small_icon";
-    protected static String LARGE_ICON = "large_icon";
-
     private int mSmallIcon;
     private int mLargeIcon;
+    private int mColor;
 
-    public DownloadManager(Context base, int smallIcon, int largeIcon) {
+    public DownloadManager(Context base, int smallIcon, int largeIcon, int color) {
         super(base);
         mSmallIcon = smallIcon;
         mLargeIcon = largeIcon;
+        mColor = color;
     }
 
     public synchronized void enqueue(Request request) {
-        Intent intent = new Intent(this, DownloadIntentService.class);
+        Intent i = DownloadIntentService.obtainIntent(this, request, mSmallIcon, mLargeIcon, mColor, null);
         request.setId(CURRENT_DOWNLOAD_ID++);
-        intent.putExtra(REQUEST, request);
-        intent.putExtra(SMALL_ICON, mSmallIcon);
-        intent.putExtra(LARGE_ICON, mLargeIcon);
-        startService(intent);
+        startService(i);
     }
 
     /**
@@ -121,7 +117,6 @@ public class DownloadManager extends ContextWrapper {
 
         public Request setDestinationInExternalPublicDir(String dirType, String subPath) {
             File file = Environment.getExternalStoragePublicDirectory(dirType);
-            System.out.println(file);
             if(file == null)
                 throw new IllegalStateException("Failed to get external storage public directory");
             else if(file.exists()) {
@@ -162,6 +157,7 @@ public class DownloadManager extends ContextWrapper {
         private Optional<Context> mContext;
         private Optional<Integer> mSmallIcon;
         private Optional<Integer> mLargeIcon;
+        private Optional<Integer> mNotificationColor;
 
         public Builder(Context context) {
             mContext = Optional.of(context);
@@ -179,9 +175,14 @@ public class DownloadManager extends ContextWrapper {
             return this;
         }
 
+        public Builder setNotificationColor(int argb) {
+            mNotificationColor = Optional.of(argb);
+            return this;
+        }
+
         public DownloadManager build() {
             if(mContext.isPresent() && mSmallIcon.isPresent()) {
-                return new DownloadManager(mContext.get(), mSmallIcon.get(), mLargeIcon.get());
+                return new DownloadManager(mContext.get(), mSmallIcon.get(), mLargeIcon.get(), mNotificationColor.get());
             }
             throw new IllegalArgumentException("Context or small icon not set");
         }
