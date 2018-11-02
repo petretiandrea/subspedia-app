@@ -33,18 +33,15 @@ public class DownloadIntentService extends IntentService implements Downloader.D
     private NotificationCompat.Builder mBuilder;
     private Downloader mDownloader;
 
-    private PendingIntent mCompleteIntent;
-
     private int mNotificationId;
 
     public static Intent obtainIntent(Context context, DownloadManager.Request request, int smallIcon,
-                                      int largeIcon, int notificationColor, PendingIntent completeIntent) {
+                                      int largeIcon, int notificationColor) {
         Intent intent = new Intent(context, DownloadIntentService.class);
         intent.putExtra(REQUEST, request);
         intent.putExtra(SMALL_ICON, smallIcon);
         intent.putExtra(LARGE_ICON, largeIcon);
         intent.putExtra(NOTIFICATION_COLOR, notificationColor);
-        intent.putExtra(COMPLETE_PENDING_INTENT, completeIntent);
         return intent;
     }
 
@@ -86,7 +83,6 @@ public class DownloadIntentService extends IntentService implements Downloader.D
             int smallIcon = intent.getIntExtra(SMALL_ICON, -1);
             int largeIcon = intent.getIntExtra(LARGE_ICON, -1);
             int color = intent.getIntExtra(NOTIFICATION_COLOR, -1);
-            mCompleteIntent = intent.getParcelableExtra(COMPLETE_PENDING_INTENT);
 
             mNotificationId = request.getId();
             mBuilder = new NotificationCompat.Builder(this, CHANNEL_ONE_ID)
@@ -133,7 +129,6 @@ public class DownloadIntentService extends IntentService implements Downloader.D
                     .setContentText(getString(R.string.download_complete))
                     .setProgress(0, 0, false)
                     .setNumber(request.getId())
-                    .setContentIntent(mCompleteIntent)
                     .setOngoing(false)
                     .setAutoCancel(false);
 
@@ -147,13 +142,5 @@ public class DownloadIntentService extends IntentService implements Downloader.D
         mBuilder.setOngoing(false);
         mBuilder.setAutoCancel(false);
         mNotificationManager.notify(request.getId(), mBuilder.build());
-    }
-
-    private Intent intentOpenFile(DownloadManager.Request request) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        //String mimeType = getContentResolver().getType(request.getPath());
-        intent.setDataAndType(request.getPath(), "*/*");
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        return intent;
     }
 }

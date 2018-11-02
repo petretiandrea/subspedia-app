@@ -1,9 +1,9 @@
 package com.andreapetreti.android_utils.downloadmanager;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcel;
@@ -29,7 +29,7 @@ public class DownloadManager extends ContextWrapper {
     }
 
     public synchronized void enqueue(Request request) {
-        Intent i = DownloadIntentService.obtainIntent(this, request, mSmallIcon, mLargeIcon, mColor, null);
+        Intent i = DownloadIntentService.obtainIntent(this, request, mSmallIcon, mLargeIcon, mColor);
         request.setId(CURRENT_DOWNLOAD_ID++);
         startService(i);
     }
@@ -56,7 +56,7 @@ public class DownloadManager extends ContextWrapper {
         public Request() {
         }
 
-        private Request(Parcel in) {
+        protected Request(Parcel in) {
             mId = in.readInt();
             mTitle = in.readString();
             mDescription = in.readString();
@@ -111,7 +111,7 @@ public class DownloadManager extends ContextWrapper {
             return this;
         }
 
-        protected Uri getPath() {
+        public Uri getPath() {
             return Uri.parse(mPath.toString());
         }
 

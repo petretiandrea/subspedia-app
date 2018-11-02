@@ -1,8 +1,12 @@
 package com.andreapetreti.subspedia.utils;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.webkit.MimeTypeMap;
 
 import com.andreapetreti.android_utils.downloadmanager.DownloadManager;
@@ -14,6 +18,7 @@ import com.annimon.stream.Collectors;
 import com.annimon.stream.Optional;
 import com.annimon.stream.Stream;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
