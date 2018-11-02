@@ -64,11 +64,8 @@ public class SubspediaUtils {
 
     public static List<SubtitleWithSerie> filterNewSubtitles(List<Subtitle> subtitles, List<Serie> series,
                                                              long lastCheck, long threshold) {
-
-        String dateFormat = "yyyy-MM-dd HH:mm:ss";
-
         return Stream.of(subtitles)
-                .filter(value -> parseDateToUTC(dateFormat, value.getDate()).mapToBoolean(date -> date.getTime() >= (lastCheck - threshold)).orElse(false))
+                .filter(value -> value.getDateObj().mapToBoolean(date -> date.getTime() >= (lastCheck - threshold)).orElse(false))
                 .flatMap(subtitle -> Stream.of(series).filter(value -> value.getIdSerie() == subtitle.getIdSerie()).map(serie -> new SubtitleWithSerie(subtitle, serie)))
                 .distinct()
                 .collect(Collectors.toList());
