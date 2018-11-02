@@ -1,7 +1,14 @@
 package com.andreapetreti.subspedia;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkRequest;
+import android.net.NetworkSpecifier;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -31,6 +38,10 @@ import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
+import static android.net.ConnectivityManager.EXTRA_NETWORK_INFO;
+import static android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY;
+
 public class DashboardActivity extends AppCompatActivity {
 
     /**
@@ -51,6 +62,10 @@ public class DashboardActivity extends AppCompatActivity {
 
     /* Fix for "Can not perform this action after onSaveInstanceState" */
     private boolean mPermissionsGranted;
+
+    private ConnectivityManager mConnectivityManager;
+
+    private MonitorConnectivity mMonitorConnectivity;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
@@ -85,6 +100,10 @@ public class DashboardActivity extends AppCompatActivity {
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         BottomNavigationViewHelper.removeShiftMode(navigation);
+
+        mMonitorConnectivity = new MonitorConnectivity();
+
+        mConnectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
         mFragments = new HashMap<>();
         mFragments.put(TAG_FRAGMENT_ALL_SERIES, AllSeriesFragment.newInstance());
@@ -127,13 +146,19 @@ public class DashboardActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
         checkAppPermission();
+        registerMonitorConnectivity();
         if(mPermissionsGranted)
             switchFragment(mCurrentSwitchFragment);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterMonitorConnectivity();
     }
 
     @Override
@@ -154,5 +179,24 @@ public class DashboardActivity extends AppCompatActivity {
                 .beginTransaction()
                 .replace(R.id.frameLayout, mFragments.get(tag), tag)
                 .commit();
+    }
+
+
+    private void registerMonitorConnectivity() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(CONNECTIVITY_ACTION);
+        registerReceiver(mMonitorConnectivity, intentFilter);
+    }
+
+    private void unregisterMonitorConnectivity() {
+        unregisterReceiver(mMonitorConnectivity);
+    }
+
+    protected class MonitorConnectivity extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean noConnection = intent.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false);
+
+        }
     }
 }

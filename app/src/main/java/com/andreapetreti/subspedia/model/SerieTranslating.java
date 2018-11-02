@@ -7,6 +7,9 @@ import com.google.gson.annotations.SerializedName;
 @Entity
 public class SerieTranslating extends Serie {
 
+    private static final String STATUS_TRANSLATING = "in traduzione";
+    private static final String STATUS_REVISION = "revisione";
+
     /**
      * The season number
      */
@@ -33,6 +36,14 @@ public class SerieTranslating extends Serie {
 
     public void setEpisodeNumber(int episodeNumber) {
         mEpisodeNumber = episodeNumber;
+    }
+
+    public boolean isTranslatingStatus() {
+        return getStatus().toLowerCase().equals(STATUS_TRANSLATING);
+    }
+
+    public boolean isRevisionStatus() {
+        return getStatus().toLowerCase().equals(STATUS_REVISION);
     }
 
     @Override

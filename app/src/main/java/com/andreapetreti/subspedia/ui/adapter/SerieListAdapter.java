@@ -1,8 +1,13 @@
 package com.andreapetreti.subspedia.ui.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,14 +91,15 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
                         tmp.getSeasonNumber()));
 
                 serieViewHolder.txtCaption.setText(serie.getStatus());
-                // TODO: set different image when status is "TRADUZIONE" o "REVISIONE"
-                //((SerieTranslatingViewHolder) serieViewHolder).mImageStatus.setImageResource(R.drawable.ic_);
+                ((SerieTranslatingViewHolder) serieViewHolder).mImageStatus.setImageResource(tmp.isRevisionStatus() ?
+                                                                                R.drawable.ic_edit_black_24dp :
+                                                                                R.drawable.ic_time_24dp);
 
             } else {
                 serieViewHolder.mFavourite.setImageResource(serie.isFavorite() ? R.drawable.ic_star_orange_24dp : R.drawable.ic_star_border_orange_24dp);
                 serieViewHolder.txtTitle.setText(serie.getName());
                 serieViewHolder.txtCaption.setText(String.format(Locale.getDefault(), "%s - %d",
-                        serie.getStatus(),
+                        serie.getStatus().toUpperCase(),
                         serie.getYear()));
             }
         } else {
