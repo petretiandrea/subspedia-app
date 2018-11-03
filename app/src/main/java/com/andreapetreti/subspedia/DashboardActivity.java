@@ -1,16 +1,20 @@
 package com.andreapetreti.subspedia;
 
 import android.Manifest;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.net.NetworkSpecifier;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -18,8 +22,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
 
 
+import com.andreapetreti.android_utils.connectivity.ConnectionLiveData;
 import com.andreapetreti.android_utils.ui.BottomNavigationViewHelper;
 import com.andreapetreti.subspedia.background.NewSubsWorker;
 import com.andreapetreti.subspedia.ui.fragment.AllSeriesFragment;
@@ -29,6 +35,7 @@ import com.andreapetreti.subspedia.ui.fragment.TranslatingSeriesFragment;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.Constraints;
@@ -42,6 +49,8 @@ import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.EXTRA_NETWORK_INFO;
 import static android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY;
 
+// TODO: handle the initial download of tv series. Before show the fragment show a refreshing swipe
+// TODO: or show a loading bar.
 public class DashboardActivity extends AppCompatActivity {
 
     /**
@@ -63,12 +72,7 @@ public class DashboardActivity extends AppCompatActivity {
     /* Fix for "Can not perform this action after onSaveInstanceState" */
     private boolean mPermissionsGranted;
 
-    private ConnectivityManager mConnectivityManager;
-
-    private MonitorConnectivity mMonitorConnectivity;
-
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = item -> {
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
                         switchFragment(TAG_FRAGMENT_ALL_SERIES);
@@ -97,13 +101,12 @@ public class DashboardActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        ((TextView)findViewById(R.id.toolbar_title)).setText(toolbar.getTitle());
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         BottomNavigationViewHelper.removeShiftMode(navigation);
-
-        mMonitorConnectivity = new MonitorConnectivity();
-
-        mConnectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
         mFragments = new HashMap<>();
         mFragments.put(TAG_FRAGMENT_ALL_SERIES, AllSeriesFragment.newInstance());
@@ -111,10 +114,13 @@ public class DashboardActivity extends AppCompatActivity {
         mFragments.put(TAG_FRAGMENT_TRANSLATING_SERIES, TranslatingSeriesFragment.newInstance());
         mFragments.put(TAG_FRAGMENT_LAST_SUBS, LastSubtitlesFragment.newInstance());
 
-        mCurrentSwitchFragment = (savedInstanceState != null) ? savedInstanceState.getString("current_frag", TAG_FRAGMENT_ALL_SERIES) : TAG_FRAGMENT_ALL_SERIES;
+        mCurrentSwitchFragment = (savedInstanceState != null) ?
+                savedInstanceState.getString("current_frag", TAG_FRAGMENT_ALL_SERIES) :
+                TAG_FRAGMENT_ALL_SERIES;
 
         // setup periodic worker for check new subtitles
         setupNewSubsWorker();
+        setupNetworkLiveData();
     }
 
     private void setupNewSubsWorker() {
@@ -126,6 +132,20 @@ public class DashboardActivity extends AppCompatActivity {
                 .build();
 
         WorkManager.getInstance().enqueueUniquePeriodicWork("periodic_new_sub", ExistingPeriodicWorkPolicy.KEEP, workRequest);
+    }
+
+    private void setupNetworkLiveData() {
+        LiveData<Boolean> networkData = new ConnectionLiveData(this);
+        networkData.observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean connected) {
+                if(connected) {
+                    // TODO: ...
+                } else {
+
+                }
+            }
+        });
     }
 
     private void checkAppPermission() {
@@ -150,7 +170,6 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         checkAppPermission();
-        registerMonitorConnectivity();
         if(mPermissionsGranted)
             switchFragment(mCurrentSwitchFragment);
     }
@@ -158,7 +177,6 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterMonitorConnectivity();
     }
 
     @Override
@@ -181,22 +199,8 @@ public class DashboardActivity extends AppCompatActivity {
                 .commit();
     }
 
-
-    private void registerMonitorConnectivity() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(CONNECTIVITY_ACTION);
-        registerReceiver(mMonitorConnectivity, intentFilter);
-    }
-
-    private void unregisterMonitorConnectivity() {
-        unregisterReceiver(mMonitorConnectivity);
-    }
-
-    protected class MonitorConnectivity extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            boolean noConnection = intent.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false);
-
-        }
-    }
+    /*private boolean isConnected() {
+        NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
+        return com.annimon.stream.Objects.nonNull(info) && info.isConnectedOrConnecting();
+    }*/
 }

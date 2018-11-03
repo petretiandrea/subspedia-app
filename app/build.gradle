@@ -32,8 +32,6 @@ ext {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation "com.jaeger.statusbarutil:library:1.5.1"
-
     def work_version = "1.0.0-alpha10"
     implementation "android.arch.work:work-runtime:$work_version"
     androidTestImplementation "android.arch.work:work-testing:$work_version"

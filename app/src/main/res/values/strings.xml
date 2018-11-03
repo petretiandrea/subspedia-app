@@ -38,9 +38,12 @@
     <string name="notification_title_new_subtitles">Nuovi sottotitoli per le tue serie preferite.</string>
     <string name="notification_content_new_subtitle">%d nuovo sottotitolo.</string>
     <string name="notification_content_new_subtitles">%d nuovi sottotitoli.</string>
-    
+
     <plurals name="notification_content_new_subs">
         <item quantity="one">@string/notification_content_new_subtitle</item>
         <item quantity="other">@string/notification_content_new_subtitles</item>
     </plurals>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
