@@ -3,15 +3,7 @@ package com.andreapetreti.subspedia;
 import android.Manifest;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.NetworkRequest;
-import android.net.NetworkSpecifier;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,7 +23,10 @@ import com.andreapetreti.subspedia.background.NewSubsWorker;
 import com.andreapetreti.subspedia.ui.fragment.AllSeriesFragment;
 import com.andreapetreti.subspedia.ui.fragment.FavoriteSeriesFragment;
 import com.andreapetreti.subspedia.ui.fragment.LastSubtitlesFragment;
+import com.andreapetreti.subspedia.ui.fragment.NoConnectionFragment;
 import com.andreapetreti.subspedia.ui.fragment.TranslatingSeriesFragment;
+import com.annimon.stream.IntStream;
+import com.annimon.stream.function.IntConsumer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,10 +39,6 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
-
-import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
-import static android.net.ConnectivityManager.EXTRA_NETWORK_INFO;
-import static android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY;
 
 // TODO: handle the initial download of tv series. Before show the fragment show a refreshing swipe
 // TODO: or show a loading bar.
@@ -66,6 +57,8 @@ public class DashboardActivity extends AppCompatActivity {
     private static final String TAG_FRAGMENT_ALL_SERIES = "frag_all_series";
     private static final String TAG_FRAGMENT_TRANSLATING_SERIES = "frag_trans_series";
     private static final String TAG_FRAGMENT_LAST_SUBS = "frag_last_subs";
+
+    private static final String TAG_NO_CONNECTION_FRAGMENT = "no_conn_fragment";
 
     private String mCurrentSwitchFragment;
 
@@ -91,7 +84,8 @@ public class DashboardActivity extends AppCompatActivity {
             };
 
     private Map<String, Fragment> mFragments;
-
+    private Fragment mNoConnectionFragment;
+    private BottomNavigationView mBottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,15 +98,17 @@ public class DashboardActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.toolbar_title)).setText(toolbar.getTitle());
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
-        BottomNavigationView navigation = findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        BottomNavigationViewHelper.removeShiftMode(navigation);
+        mBottomNavigationView = findViewById(R.id.navigation);
+        mBottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        BottomNavigationViewHelper.removeShiftMode(mBottomNavigationView);
 
         mFragments = new HashMap<>();
         mFragments.put(TAG_FRAGMENT_ALL_SERIES, AllSeriesFragment.newInstance());
         mFragments.put(TAG_FRAGMENT_FAVORITE, FavoriteSeriesFragment.newInstance());
         mFragments.put(TAG_FRAGMENT_TRANSLATING_SERIES, TranslatingSeriesFragment.newInstance());
         mFragments.put(TAG_FRAGMENT_LAST_SUBS, LastSubtitlesFragment.newInstance());
+
+        mNoConnectionFragment = NoConnectionFragment.newInstance();
 
         mCurrentSwitchFragment = (savedInstanceState != null) ?
                 savedInstanceState.getString("current_frag", TAG_FRAGMENT_ALL_SERIES) :
@@ -123,31 +119,34 @@ public class DashboardActivity extends AppCompatActivity {
         setupNetworkLiveData();
     }
 
-    private void setupNewSubsWorker() {
-        Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
-
-        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(NewSubsWorker.class, Constants.PERIOD_SCHEDULE_NOTIFICATION_HOUR, TimeUnit.HOURS)
-                .setInputData(new Data.Builder().putLong(Constants.KEY_PERIOD_SCHEDULE_NOTIFICATION, Constants.PERIOD_SCHEDULE_NOTIFICATION_MILLIS).build())
-                .setConstraints(constraints)
-                .build();
-
-        WorkManager.getInstance().enqueueUniquePeriodicWork("periodic_new_sub", ExistingPeriodicWorkPolicy.KEEP, workRequest);
-    }
-
+    /**
+     * Initialize the observer to network status.
+     * - When there is no connections, disable the bottom navigation view
+     * and show the fragment {@link NoConnectionFragment}.
+     * - When there is connection, enable the bottom navigation view and show
+     * the current fragment.
+     */
     private void setupNetworkLiveData() {
         LiveData<Boolean> networkData = new ConnectionLiveData(this);
-        networkData.observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(@Nullable Boolean connected) {
-                if(connected) {
-                    // TODO: ...
-                } else {
-
-                }
+        networkData.observe(this, connected -> {
+            if(connected) {
+                IntStream.range(0, mBottomNavigationView.getMenu().size()).forEach(value -> mBottomNavigationView.getMenu().getItem(value).setEnabled(true));
+                getSupportFragmentManager().beginTransaction().remove(mNoConnectionFragment).commit();
+                if(mPermissionsGranted)
+                    switchFragment(mCurrentSwitchFragment);
+            } else {
+                IntStream.range(0, mBottomNavigationView.getMenu().size()).forEach(value -> mBottomNavigationView.getMenu().getItem(value).setEnabled(false));
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.frameLayout, mNoConnectionFragment, TAG_NO_CONNECTION_FRAGMENT)
+                        .commit();
             }
         });
     }
 
+    /**
+     * Check the application permission, and ask it if not granted.
+     */
     private void checkAppPermission() {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, RW_PERMISSION);
@@ -170,8 +169,6 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         checkAppPermission();
-        if(mPermissionsGranted)
-            switchFragment(mCurrentSwitchFragment);
     }
 
     @Override
@@ -191,6 +188,10 @@ public class DashboardActivity extends AppCompatActivity {
         mCurrentSwitchFragment = savedInstanceState.getString("current_frag");
     }
 
+    /**
+     * Switch to fragment specified on tag.
+     * @param tag Tag of fragment to show.
+     */
     private void switchFragment(String tag) {
         mCurrentSwitchFragment = tag;
         getSupportFragmentManager()
@@ -199,8 +200,18 @@ public class DashboardActivity extends AppCompatActivity {
                 .commit();
     }
 
-    /*private boolean isConnected() {
-        NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
-        return com.annimon.stream.Objects.nonNull(info) && info.isConnectedOrConnecting();
-    }*/
+
+    /**
+     * Initialize the worker for check new subtitle download
+     */
+    private void setupNewSubsWorker() {
+        Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+
+        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(NewSubsWorker.class, Constants.PERIOD_SCHEDULE_NOTIFICATION_HOUR, TimeUnit.HOURS)
+                .setInputData(new Data.Builder().putLong(Constants.KEY_PERIOD_SCHEDULE_NOTIFICATION, Constants.PERIOD_SCHEDULE_NOTIFICATION_MILLIS).build())
+                .setConstraints(constraints)
+                .build();
+
+        WorkManager.getInstance().enqueueUniquePeriodicWork("periodic_new_sub", ExistingPeriodicWorkPolicy.KEEP, workRequest);
+    }
 }
