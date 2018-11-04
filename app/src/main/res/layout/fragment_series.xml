@@ -23,16 +23,18 @@
         android:visibility="gone"
         android:text="@string/empty" />
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <com.andreapetreti.android_utils.ui.ColorSwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swiperefresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:color1="@color/secondaryColor"
+        app:color2="@color/primaryColor">
 
         <com.andreapetreti.android_utils.adapter.EmptyRecyclerView
             android:id="@+id/recyclerViewSeries"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </com.andreapetreti.android_utils.ui.ColorSwipeRefreshLayout>
 </FrameLayout>

@@ -3,6 +3,7 @@ package com.andreapetreti.subspedia;
 import android.Manifest;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +12,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
@@ -20,15 +22,19 @@ import android.widget.TextView;
 import com.andreapetreti.android_utils.connectivity.ConnectionLiveData;
 import com.andreapetreti.android_utils.ui.BottomNavigationViewHelper;
 import com.andreapetreti.subspedia.background.NewSubsWorker;
+import com.andreapetreti.subspedia.common.Resource;
+import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.ui.fragment.AllSeriesFragment;
 import com.andreapetreti.subspedia.ui.fragment.FavoriteSeriesFragment;
 import com.andreapetreti.subspedia.ui.fragment.LastSubtitlesFragment;
 import com.andreapetreti.subspedia.ui.fragment.NoConnectionFragment;
 import com.andreapetreti.subspedia.ui.fragment.TranslatingSeriesFragment;
+import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.annimon.stream.IntStream;
 import com.annimon.stream.function.IntConsumer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -86,6 +92,7 @@ public class DashboardActivity extends AppCompatActivity {
     private Map<String, Fragment> mFragments;
     private Fragment mNoConnectionFragment;
     private BottomNavigationView mBottomNavigationView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,25 +105,41 @@ public class DashboardActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.toolbar_title)).setText(toolbar.getTitle());
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
+        mSwipeRefreshLayout = findViewById(R.id.swipe_loading);
         mBottomNavigationView = findViewById(R.id.navigation);
         mBottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         BottomNavigationViewHelper.removeShiftMode(mBottomNavigationView);
 
         mFragments = new HashMap<>();
-        mFragments.put(TAG_FRAGMENT_ALL_SERIES, AllSeriesFragment.newInstance());
-        mFragments.put(TAG_FRAGMENT_FAVORITE, FavoriteSeriesFragment.newInstance());
-        mFragments.put(TAG_FRAGMENT_TRANSLATING_SERIES, TranslatingSeriesFragment.newInstance());
         mFragments.put(TAG_FRAGMENT_LAST_SUBS, LastSubtitlesFragment.newInstance());
+        mFragments.put(TAG_FRAGMENT_TRANSLATING_SERIES, TranslatingSeriesFragment.newInstance());
+        mFragments.put(TAG_FRAGMENT_FAVORITE, FavoriteSeriesFragment.newInstance());
+        mFragments.put(TAG_FRAGMENT_ALL_SERIES, AllSeriesFragment.newInstance());
 
         mNoConnectionFragment = NoConnectionFragment.newInstance();
 
         mCurrentSwitchFragment = (savedInstanceState != null) ?
-                savedInstanceState.getString("current_frag", TAG_FRAGMENT_ALL_SERIES) :
-                TAG_FRAGMENT_ALL_SERIES;
+                savedInstanceState.getString("current_frag", TAG_FRAGMENT_LAST_SUBS) :
+                TAG_FRAGMENT_LAST_SUBS;
 
         // setup periodic worker for check new subtitles
         setupNewSubsWorker();
         setupNetworkLiveData();
+    }
+
+    private void fetchTVSeries() {
+        SeriesViewModel seriesViewModel = ViewModelProviders.of(this).get(SeriesViewModel.class);
+        seriesViewModel.getAllSeries().observe(this, listResource -> {
+            if(listResource.status == Resource.Status.LOADING) {
+                System.out.println("Loading...");
+                mSwipeRefreshLayout.setRefreshing(true);
+            }
+            if(listResource.status == Resource.Status.SUCCESS) {
+                System.out.println("Success...");
+                mSwipeRefreshLayout.setRefreshing(false);
+                switchFragment(mCurrentSwitchFragment);
+            }
+        });
     }
 
     /**
@@ -132,8 +155,7 @@ public class DashboardActivity extends AppCompatActivity {
             if(connected) {
                 IntStream.range(0, mBottomNavigationView.getMenu().size()).forEach(value -> mBottomNavigationView.getMenu().getItem(value).setEnabled(true));
                 getSupportFragmentManager().beginTransaction().remove(mNoConnectionFragment).commit();
-                if(mPermissionsGranted)
-                    switchFragment(mCurrentSwitchFragment);
+                fetchTVSeries();
             } else {
                 IntStream.range(0, mBottomNavigationView.getMenu().size()).forEach(value -> mBottomNavigationView.getMenu().getItem(value).setEnabled(false));
                 getSupportFragmentManager()
