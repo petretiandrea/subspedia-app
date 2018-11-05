@@ -6,13 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragment.LastSubtitlesFragment">
 
-    <com.andreapetreti.android_utils.ui.LoadingBarMessage
-        android:id="@+id/progressMessage"
-        android:layout_width="wrap_content"
+    <include
+        android:id="@+id/emptyView"
+        layout="@layout/empty_list_placeholder"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|center_horizontal"
-        app:text="@string/loading" />
-
+        android:layout_gravity="center"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        android:gravity="center"
+        android:padding="16dp"/>
 
     <com.andreapetreti.android_utils.ui.ColorSwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -22,7 +25,7 @@
         app:color1="@color/secondaryColor"
         app:color2="@color/primaryColor">
 
-        <android.support.v7.widget.RecyclerView
+        <com.andreapetreti.android_utils.adapter.EmptyRecyclerView
             android:id="@+id/recyclerViewSubs"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

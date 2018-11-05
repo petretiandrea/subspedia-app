@@ -47,4 +47,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="no_connection">Sei offline. Riattiva la tua connessione ad internet per accedere ai contenuti di Subspedia.</string>
+
+    <string name="error_subspedia">Mi dispiace, ma non riesco a contattare Subspedia</string>
+    <string name="empty_last_subtitles">Non si guarda niente oggi. Non ci sono sottotitoli recenti pubblicati.</string>
 </resources>

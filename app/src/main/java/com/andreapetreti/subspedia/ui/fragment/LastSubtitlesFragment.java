@@ -1,29 +1,25 @@
 package com.andreapetreti.subspedia.ui.fragment;
 
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.andreapetreti.android_utils.adapter.ItemClickListener;
+import com.andreapetreti.android_utils.adapter.EmptyRecyclerView;
 import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
-import com.andreapetreti.subspedia.model.Subtitle;
 import com.andreapetreti.subspedia.ui.adapter.SubtitleListAdapter;
 import com.andreapetreti.subspedia.ui.dialog.SubtitleDialog;
 import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
-
-import java.util.List;
+import com.annimon.stream.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,11 +28,11 @@ import java.util.List;
  */
 public class LastSubtitlesFragment extends Fragment {
 
-    private LoadingBarMessage mLoadingBarMessage;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SubtitleListAdapter mSubtitleListAdapter;
 
     private SubtitleViewModel mSubtitleViewModel;
+    private View mEmptyView;
 
     public LastSubtitlesFragment() {
         // Required empty public constructor
@@ -61,13 +57,11 @@ public class LastSubtitlesFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_last_subtitles, container, false);
 
-        mLoadingBarMessage = rootView.findViewById(R.id.progressMessage);
-        mLoadingBarMessage.getProgressBar().setIndeterminate(true);
-
         mSwipeRefreshLayout  = rootView.findViewById(R.id.swiperefresh);
         mSubtitleListAdapter = new SubtitleListAdapter(getActivity(), SubtitleListAdapter.Type.TYPE_LAST_SUB);
 
-        RecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewSubs);
+        mEmptyView = rootView.findViewById(R.id.emptyView);
+        EmptyRecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewSubs);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(mSubtitleListAdapter);
@@ -83,18 +77,23 @@ public class LastSubtitlesFragment extends Fragment {
         return rootView;
     }
 
+    /** Initialize the view model for latest subtitles */
     private void initViewModel() {
         mSubtitleViewModel.getLastSubtitles().removeObservers(getActivity());
         mSubtitleViewModel.getLastSubtitles().observe(getActivity(), listResource -> {
-            if(listResource.status == Resource.Status.LOADING && !mSwipeRefreshLayout.isRefreshing())
-                mLoadingBarMessage.setVisibility(View.VISIBLE);
 
-            if(listResource.status == Resource.Status.SUCCESS) {
+            // the refreshing status is set true only if is loading
+            mSwipeRefreshLayout.setRefreshing(listResource.status.equals(Resource.Status.LOADING));
+
+            if(listResource.status.equals(Resource.Status.SUCCESS) ||
+                    listResource.status.equals(Resource.Status.ERROR)) {
+
+                mEmptyView.setVisibility((Objects.isNull(listResource.data) || listResource.data.isEmpty()) ?
+                        View.VISIBLE :
+                        View.GONE);
+
                 mSubtitleListAdapter.setList(listResource.data);
                 mSubtitleListAdapter.notifyDataSetChanged();
-                mLoadingBarMessage.setVisibility(View.GONE);
-                if(mSwipeRefreshLayout.isRefreshing())
-                    mSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }

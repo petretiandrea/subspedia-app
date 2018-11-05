@@ -14,7 +14,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import com.andreapetreti.android_utils.adapter.EmptyRecyclerView;
 import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
@@ -23,6 +25,7 @@ import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
 import com.andreapetreti.subspedia.ui.adapter.ItemClickListener;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.viewmodel.SerieTranslatingViewModel;
+import com.annimon.stream.Objects;
 
 import java.util.List;
 
@@ -33,10 +36,9 @@ import java.util.List;
  */
 public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
 
-    private LoadingBarMessage mLoadingBarMessage;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private SerieTranslatingViewModel mTranslatingViewModel;
     private SerieListAdapter mSerieListAdapter;
+    private View mEmptyView;
 
     public TranslatingSeriesFragment() {
         // Required empty public constructor
@@ -63,12 +65,10 @@ public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_translating_series, container, false);
 
-        mLoadingBarMessage = rootView.findViewById(R.id.progressMessage);
-        mLoadingBarMessage.getProgressBar().setIndeterminate(true);
-
         mSerieListAdapter = new SerieListAdapter(getActivity());
 
-        RecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewTranslating);
+        mEmptyView = rootView.findViewById(R.id.emptyView);
+        EmptyRecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewTranslating);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
@@ -76,18 +76,21 @@ public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
 
         mSwipeRefreshLayout  = rootView.findViewById(R.id.swiperefresh);
 
-        mTranslatingViewModel = ViewModelProviders.of(this).get(SerieTranslatingViewModel.class);
-        mSwipeRefreshLayout.setOnRefreshListener(mTranslatingViewModel::refreshTranslatingSeries);
-        mTranslatingViewModel.getAllTranslatingSeries().observe(this, listResource -> {
+        SerieTranslatingViewModel translatingViewModel = ViewModelProviders.of(this).get(SerieTranslatingViewModel.class);
+        mSwipeRefreshLayout.setOnRefreshListener(translatingViewModel::refreshTranslatingSeries);
+        translatingViewModel.getAllTranslatingSeries().observe(this, listResource -> {
 
-            if(listResource.status == Resource.Status.LOADING && !mSwipeRefreshLayout.isRefreshing())
-                mLoadingBarMessage.setVisibility(View.VISIBLE);
+            // the refreshing status is set true only if is loading
+            mSwipeRefreshLayout.setRefreshing(listResource.status.equals(Resource.Status.LOADING));
 
-            if(listResource.status == Resource.Status.SUCCESS) {
+            if(listResource.status.equals(Resource.Status.SUCCESS) ||
+                    listResource.status.equals(Resource.Status.ERROR)) {
+
+                mEmptyView.setVisibility((Objects.isNull(listResource.data) || listResource.data.isEmpty()) ?
+                        View.VISIBLE :
+                        View.GONE);
+
                 mSerieListAdapter.setSeries(listResource.data);
-                mLoadingBarMessage.setVisibility(View.GONE);
-                if(mSwipeRefreshLayout.isRefreshing())
-                    mSwipeRefreshLayout.setRefreshing(false);
             }
         });
 

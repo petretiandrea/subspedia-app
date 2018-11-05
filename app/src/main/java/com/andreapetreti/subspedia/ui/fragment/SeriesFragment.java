@@ -32,7 +32,6 @@ public abstract class SeriesFragment extends Fragment {
     /**
      * Loading bar and message showed when list is loading.
      */
-    private LoadingBarMessage mLoadingBarMessage;
     private SwipeRefreshLayout mRefreshLayout;
     private SeriesViewModel mSeriesViewModel;
     private EmptyRecyclerView recyclerView;
@@ -48,8 +47,6 @@ public abstract class SeriesFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_series, container, false);
 
         mRefreshLayout = rootView.findViewById(R.id.swiperefresh);
-        mLoadingBarMessage = rootView.findViewById(R.id.progressMessage);
-        mLoadingBarMessage.getProgressBar().setIndeterminate(true);
         mSerieListAdapter = new SerieListAdapter(getActivity());
 
         recyclerView = rootView.findViewById(R.id.recyclerViewSeries);
@@ -75,10 +72,6 @@ public abstract class SeriesFragment extends Fragment {
 
     protected SwipeRefreshLayout getSwipeRefreshLayout() {
         return mRefreshLayout;
-    }
-
-    protected LoadingBarMessage getLoadingBarMessage() {
-        return mLoadingBarMessage;
     }
 
     protected SerieListAdapter getSerieListAdapter() {

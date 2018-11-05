@@ -38,7 +38,7 @@ import static android.content.Context.SEARCH_SERVICE;
  */
 public class AllSeriesFragment extends SeriesFragment {
 
-    private TextView mMessageView;
+    private View mEmptyView;
 
     public static AllSeriesFragment newInstance() {
         return new AllSeriesFragment();
@@ -50,7 +50,7 @@ public class AllSeriesFragment extends SeriesFragment {
 
     @Override
     protected void onCreateSeriesView(View rootView, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mMessageView = Objects.requireNonNull(rootView).findViewById(R.id.emptyView);
+        mEmptyView = Objects.requireNonNull(rootView).findViewById(R.id.emptyView);
         setupAllSeries(getSeriesViewModel());
     }
 
@@ -65,28 +65,17 @@ public class AllSeriesFragment extends SeriesFragment {
         getSwipeRefreshLayout().setOnRefreshListener(viewModel::refreshAllSeries);
         viewModel.getAllSeries().observe(this, listResource -> {
 
-            // show and hide loading bar message
-            if(listResource.status == Resource.Status.LOADING && (listResource.data == null || listResource.data.isEmpty())) {
-                mMessageView.setVisibility(View.GONE);
-                getLoadingBarMessage().setVisibility(View.VISIBLE);
-            } else if(listResource.status != Resource.Status.LOADING) {
-                getLoadingBarMessage().setVisibility(View.GONE);
-                getSwipeRefreshLayout().setRefreshing(false);
-            }
+            // the refreshing status is set true only if is loading
+            getSwipeRefreshLayout().setRefreshing(listResource.status.equals(Resource.Status.LOADING));
 
-            // if user swipe to refresh hide the loading bar
-            if(getSwipeRefreshLayout().isRefreshing())
-                getLoadingBarMessage().setVisibility(View.GONE);
+            if(listResource.status.equals(Resource.Status.SUCCESS) ||
+                    listResource.status.equals(Resource.Status.ERROR)) {
 
+                mEmptyView.setVisibility((com.annimon.stream.Objects.isNull(listResource.data) || listResource.data.isEmpty()) ?
+                        View.VISIBLE :
+                        View.GONE);
 
-            // set data
-            if(listResource.status == Resource.Status.SUCCESS && listResource.data != null) {
                 getSerieListAdapter().setSeries(listResource.data);
-            } else if(listResource.status == Resource.Status.ERROR) {
-                // error
-                getSerieListAdapter().setSeries(null);
-                mMessageView.setText(getString(R.string.empty_msg_series));
-                mMessageView.setVisibility(View.VISIBLE);
             }
         });
     }

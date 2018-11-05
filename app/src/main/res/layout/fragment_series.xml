@@ -6,22 +6,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.fragment.AllSeriesFragment">
 
-    <com.andreapetreti.android_utils.ui.LoadingBarMessage
-        android:id="@+id/progressMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|center_horizontal"
-        app:text="@string/loading_series" />
-
-    <android.support.v7.widget.AppCompatTextView
+    <include
         android:id="@+id/emptyView"
+        layout="@layout/empty_list_placeholder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:gravity="center"
-        android:padding="16dp"
+        android:layout_margin="16dp"
         android:visibility="gone"
-        android:text="@string/empty" />
+        android:gravity="center"
+        android:padding="16dp"/>
 
     <com.andreapetreti.android_utils.ui.ColorSwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"

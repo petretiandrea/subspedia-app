@@ -8,39 +8,41 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
+import com.annimon.stream.Objects;
+import com.annimon.stream.Optional;
+import com.annimon.stream.function.Consumer;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class RecyclerListAdapter<T, VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
 
-    private List<T> mTList;
+    private Optional<List<T>> mTList;
     private LayoutInflater mInflater;
 
     private ItemClickListener mItemClickListener;
 
     public RecyclerListAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
-        mTList = new ArrayList<>();
+        mTList = Optional.empty();
         mItemClickListener = null;
     }
 
     protected LayoutInflater getInflater() { return mInflater; }
 
     public void setList (List<T> list) {
-        mTList.clear();
-        mTList = list;
+        mTList.ifPresent(List::clear);
+        mTList = Optional.ofNullable(list);
     }
 
     public void setOnItemClickListener(ItemClickListener clickListener) {
         mItemClickListener = clickListener;
     }
 
-    public List<T> getList() {
-        return mTList;
-    }
-
     public T itemAt(int position) {
-        return mTList.get(position);
+        if(mTList.isPresent())
+            return mTList.get().get(position);
+        return null;
     }
 
     @Override
@@ -56,7 +58,9 @@ public abstract class RecyclerListAdapter<T, VH extends RecyclerView.ViewHolder>
 
     @Override
     public int getItemCount() {
-        return mTList.size();
+        if(mTList.isPresent())
+            return mTList.get().size();
+        return 0;
     }
 
 }

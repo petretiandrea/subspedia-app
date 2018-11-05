@@ -41,6 +41,16 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+        <include
+            android:id="@+id/offline_banner"
+            layout="@layout/no_connection_banner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/navigation"
             style="@style/BottomNavigation"
@@ -54,19 +64,19 @@
 
         <com.andreapetreti.android_utils.ui.ColorSwipeRefreshLayout
             android:id="@+id/swipe_loading"
-            android:enabled="false"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
+            android:enabled="false"
+            app:color1="@color/secondaryColor"
+            app:color2="@color/primaryColor"
             app:layout_constraintBottom_toTopOf="@+id/navigation"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:color1="@color/secondaryColor"
-            app:color2="@color/primaryColor">
+            app:layout_constraintTop_toBottomOf="@+id/offline_banner">
 
             <FrameLayout
                 android:id="@+id/frameLayout"
