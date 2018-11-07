@@ -53,6 +53,8 @@ public class DownloadManager extends ContextWrapper {
          */
         private Uri mPath;
 
+        private PendingIntent mPendingIntent;
+
         public Request() {
         }
 
@@ -62,6 +64,7 @@ public class DownloadManager extends ContextWrapper {
             mDescription = in.readString();
             mUri = in.readParcelable(Uri.class.getClassLoader());
             mPath = in.readParcelable(Uri.class.getClassLoader());
+            mPendingIntent = in.readParcelable(PendingIntent.class.getClassLoader());
         }
 
         public static final Creator<Request> CREATOR = new Creator<Request>() {
@@ -115,6 +118,15 @@ public class DownloadManager extends ContextWrapper {
             return Uri.parse(mPath.toString());
         }
 
+        public PendingIntent getPendingIntent() {
+            return mPendingIntent;
+        }
+
+        public Request setPendingIntent(PendingIntent pendingIntent) {
+            mPendingIntent = pendingIntent;
+            return this;
+        }
+
         public Request setDestinationInExternalPublicDir(String dirType, String subPath) {
             File file = Environment.getExternalStoragePublicDirectory(dirType);
             if(file == null)
@@ -146,6 +158,7 @@ public class DownloadManager extends ContextWrapper {
             dest.writeString(mDescription);
             dest.writeParcelable(mUri, flags);
             dest.writeParcelable(mPath, flags);
+            dest.writeParcelable(mPendingIntent, flags);
         }
     }
 

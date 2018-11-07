@@ -10,6 +10,7 @@ import android.support.v4.content.FileProvider;
 import android.webkit.MimeTypeMap;
 
 import com.andreapetreti.android_utils.downloadmanager.DownloadManager;
+import com.andreapetreti.subspedia.DashboardActivity;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.Subtitle;
@@ -55,6 +56,9 @@ public class SubspediaUtils {
                 .setNotificationColor(ContextCompat.getColor(context, R.color.primaryColor))
                 .build();
 
+        Intent thisApp = new Intent(context, DashboardActivity.class);
+        thisApp.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
         DownloadManager.Request request = new DownloadManager.Request();
         request.setTitle(subtitle.getSerie().getName())
                 .setDescription(String.format(Locale.getDefault(), "%dx%d - %s",
@@ -62,18 +66,10 @@ public class SubspediaUtils {
                     subtitle.getSubtitle().getEpisodeNumber(),
                     subtitle.getSubtitle().getEpisodeNumber()))
                 .setUri(Uri.parse(subtitle.getSubtitle().getLinkFile()))
-                .setDestinationInExternalPublicDir("Subspedia", "");
+                .setDestinationInExternalPublicDir("Subspedia", "")
+                .setPendingIntent(PendingIntent.getActivity(context, 0, thisApp, PendingIntent.FLAG_CANCEL_CURRENT));
 
         downloadManager.enqueue(request);
-    }
-
-    public static List<SubtitleWithSerie> filterNewSubtitles(List<Subtitle> subtitles, List<Serie> series,
-                                                             long lastCheck, long threshold) {
-        return Stream.of(subtitles)
-                .filter(value -> value.getDateObj().mapToBoolean(date -> date.getTime() >= (lastCheck - threshold)).orElse(false))
-                .flatMap(subtitle -> Stream.of(series).filter(value -> value.getIdSerie() == subtitle.getIdSerie()).map(serie -> new SubtitleWithSerie(subtitle, serie)))
-                .distinct()
-                .collect(Collectors.toList());
     }
 
     public static Optional<Date> parseDateToUTC(String format, String source) {

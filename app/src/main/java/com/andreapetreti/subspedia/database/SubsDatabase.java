@@ -11,8 +11,9 @@ import android.util.Log;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.SerieTranslating;
 import com.andreapetreti.subspedia.model.Subtitle;
+import com.andreapetreti.subspedia.model.SubtitleId;
 
-@Database(entities = {Serie.class, SerieTranslating.class, Subtitle.class}, version = 14)
+@Database(entities = {Serie.class, SerieTranslating.class, Subtitle.class, SubtitleId.class}, version = 15)
 public abstract class SubsDatabase extends RoomDatabase {
 
     private static final String TAG = SubsDatabase.class.getName();
@@ -21,7 +22,7 @@ public abstract class SubsDatabase extends RoomDatabase {
     public abstract SerieDao serieDao();
     public abstract SerieTranslatingDao serieTranslatingDao();
     public abstract SubtitlesDao subtitlesDao();
-
+    public abstract SubtitleIdDao subtitleIDsDao();
 
     /* Singleton */
     private static volatile SubsDatabase INSTANCE;

@@ -130,7 +130,8 @@ public class DownloadIntentService extends IntentService implements Downloader.D
                     .setProgress(0, 0, false)
                     .setNumber(request.getId())
                     .setOngoing(false)
-                    .setAutoCancel(false);
+                    .setContentIntent(request.getPendingIntent())
+                    .setAutoCancel(true);
 
             mNotificationManager.notify(request.getId(), mBuilder.build());
         }

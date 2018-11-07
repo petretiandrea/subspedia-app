@@ -30,7 +30,7 @@ import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import com.annimon.stream.Objects;
 import java.util.concurrent.TimeUnit;
 
 import androidx.work.Constraints;
@@ -40,8 +40,6 @@ import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
-// TODO: handle the initial download of tv series. Before show the fragment show a refreshing swipe
-// TODO: or show a loading bar.
 public class DashboardActivity extends AppCompatActivity {
 
     /**
@@ -57,8 +55,6 @@ public class DashboardActivity extends AppCompatActivity {
     private static final String TAG_FRAGMENT_ALL_SERIES = "frag_all_series";
     private static final String TAG_FRAGMENT_TRANSLATING_SERIES = "frag_trans_series";
     private static final String TAG_FRAGMENT_LAST_SUBS = "frag_last_subs";
-
-    private static final String TAG_NO_CONNECTION_FRAGMENT = "no_conn_fragment";
 
     private String mCurrentSwitchFragment;
 
@@ -85,7 +81,6 @@ public class DashboardActivity extends AppCompatActivity {
 
     private Map<String, Fragment> mFragments;
 
-    private BottomNavigationView mBottomNavigationView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private View mConnectionBanner;
 
@@ -102,9 +97,9 @@ public class DashboardActivity extends AppCompatActivity {
 
         mConnectionBanner = findViewById(R.id.offline_banner);
         mSwipeRefreshLayout = findViewById(R.id.swipe_loading);
-        mBottomNavigationView = findViewById(R.id.navigation);
-        mBottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        BottomNavigationViewHelper.removeShiftMode(mBottomNavigationView);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        BottomNavigationViewHelper.removeShiftMode(bottomNavigationView);
 
         mFragments = new HashMap<>();
         mFragments.put(TAG_FRAGMENT_LAST_SUBS, LastSubtitlesFragment.newInstance());
@@ -127,7 +122,6 @@ public class DashboardActivity extends AppCompatActivity {
     private void fetchTVSeries() {
         SeriesViewModel seriesViewModel = ViewModelProviders.of(this).get(SeriesViewModel.class);
         seriesViewModel.getAllSeries().observe(this, listResource -> {
-
             if(listResource.status == Resource.Status.LOADING) {
                 System.out.println("Loading...");
                 mSwipeRefreshLayout.setRefreshing(true);
@@ -149,13 +143,12 @@ public class DashboardActivity extends AppCompatActivity {
     private void setupNetworkLiveData() {
         LiveData<Boolean> networkData = new ConnectionLiveData(this);
         networkData.observe(this, connected -> {
-            if(connected) {
-                mConnectionBanner.setVisibility(View.GONE);
-                //IntStream.range(0, mBottomNavigationView.getMenu().size()).forEach(value -> mBottomNavigationView.getMenu().getItem(value).setEnabled(true));
-            } else {
-                mConnectionBanner.setVisibility(View.VISIBLE);
-                // IntStream.range(0, mBottomNavigationView.getMenu().size()).forEach(value -> mBottomNavigationView.getMenu().getItem(value).setEnabled(false));
-            }
+
+            /* Set visibility of connection banner */
+            mConnectionBanner.setVisibility(!Objects.isNull(connected) && connected ?
+                View.GONE :
+                View.VISIBLE);
+
             fetchTVSeries();
         });
     }

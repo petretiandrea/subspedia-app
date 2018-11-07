@@ -21,6 +21,9 @@ public class Subtitle implements Parcelable {
 
     private static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    @SerializedName("id_episodio")
+    private int mIdEpisode;
+
     @SerializedName("id_serie")
     private int mIdSerie;
 
@@ -71,6 +74,7 @@ public class Subtitle implements Parcelable {
 
     @Ignore
     protected Subtitle(Parcel in) {
+        mIdEpisode = in.readInt();
         mIdSerie = in.readInt();
         mSeasonNumber = in.readInt();
         mEpisodeNumber = in.readInt();
@@ -96,6 +100,14 @@ public class Subtitle implements Parcelable {
             return new Subtitle[size];
         }
     };
+
+    public int getIdEpisode() {
+        return mIdEpisode;
+    }
+
+    public void setIdEpisode(int idEpisode) {
+        mIdEpisode = idEpisode;
+    }
 
     public int getIdSerie() {
         return mIdSerie;
@@ -221,6 +233,7 @@ public class Subtitle implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(mEpisodeNumber);
         dest.writeInt(mIdSerie);
         dest.writeInt(mSeasonNumber);
         dest.writeInt(mEpisodeNumber);
