@@ -25,6 +25,7 @@ import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
+import com.andreapetreti.subspedia.ui.custom.EmptyView;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 
 import java.util.Objects;
@@ -38,7 +39,7 @@ import static android.content.Context.SEARCH_SERVICE;
  */
 public class AllSeriesFragment extends SeriesFragment {
 
-    private View mEmptyView;
+    private EmptyView mEmptyView;
 
     public static AllSeriesFragment newInstance() {
         return new AllSeriesFragment();
@@ -51,6 +52,8 @@ public class AllSeriesFragment extends SeriesFragment {
     @Override
     protected void onCreateSeriesView(View rootView, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mEmptyView = Objects.requireNonNull(rootView).findViewById(R.id.emptyView);
+        mEmptyView.setTitle(getString(R.string.empty_list_series_title));
+        mEmptyView.setContent(getString(R.string.empty_list_series_content));
         setupAllSeries(getSeriesViewModel());
     }
 

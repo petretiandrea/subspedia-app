@@ -17,6 +17,7 @@ import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.ui.adapter.SubtitleListAdapter;
+import com.andreapetreti.subspedia.ui.custom.EmptyView;
 import com.andreapetreti.subspedia.ui.dialog.SubtitleDialog;
 import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
 import com.annimon.stream.Objects;
@@ -32,7 +33,7 @@ public class LastSubtitlesFragment extends Fragment {
     private SubtitleListAdapter mSubtitleListAdapter;
 
     private SubtitleViewModel mSubtitleViewModel;
-    private View mEmptyView;
+    private EmptyView mEmptyView;
 
     public LastSubtitlesFragment() {
         // Required empty public constructor
@@ -61,6 +62,8 @@ public class LastSubtitlesFragment extends Fragment {
         mSubtitleListAdapter = new SubtitleListAdapter(getActivity(), SubtitleListAdapter.Type.TYPE_LAST_SUB);
 
         mEmptyView = rootView.findViewById(R.id.emptyView);
+        mEmptyView.setTitle(getString(R.string.empty_last_subtitles_title));
+        mEmptyView.setContent(getString(R.string.empty_last_subtitles_content));
         EmptyRecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewSubs);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));

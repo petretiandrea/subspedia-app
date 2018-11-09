@@ -49,5 +49,17 @@
     <string name="no_connection">Sei offline. Riattiva la tua connessione ad internet per accedere ai contenuti di Subspedia.</string>
 
     <string name="error_subspedia">Mi dispiace, ma non riesco a contattare Subspedia</string>
-    <string name="empty_last_subtitles">Non si guarda niente oggi. Non ci sono sottotitoli recenti pubblicati.</string>
+
+    <!-- Empty states strings -->
+    <string name="empty_last_subtitles_title">Oh! Nessun nuovo sottotitolo</string>
+    <string name="empty_last_subtitles_content">Attendi la traduzione di qualche sottotitolo e riprova.</string>
+
+    <string name="empty_translating_title">Nessuno sta traducendo!?</string>
+    <string name="empty_translating_content">Attualmente non ci sono episodi in traduzione, ricontrolla più tardi.</string>
+
+    <string name="empty_list_series_title">Non ci sono serie TV!?</string>
+    <string name="empty_list_series_content">Controlla la tua connessione o riprova più tardi.</string>
+
+    <string name="empty_list_favorite_series_title">Impossibile! Non segui nessuna serie TV?</string>
+    <string name="empty_list_favorite_series_content">Aggiungi una serie TV ai preferiti per riceve notifiche dei nuovi episodi.</string>
 </resources>

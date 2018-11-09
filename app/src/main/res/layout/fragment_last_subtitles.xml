@@ -6,9 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragment.LastSubtitlesFragment">
 
-    <include
+    <com.andreapetreti.subspedia.ui.custom.EmptyView
         android:id="@+id/emptyView"
-        layout="@layout/empty_list_placeholder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

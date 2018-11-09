@@ -24,7 +24,7 @@
         <activity
             android:name=".ui.SerieDetailsActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme.DetailSeries" />
 
         <service android:name="com.andreapetreti.android_utils.downloadmanager.DownloadIntentService" />
 

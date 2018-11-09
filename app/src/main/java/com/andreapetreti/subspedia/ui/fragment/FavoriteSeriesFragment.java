@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
+import com.andreapetreti.subspedia.ui.custom.EmptyView;
 import com.annimon.stream.Objects;
 import com.annimon.stream.Optional;
 import com.annimon.stream.function.Consumer;
@@ -26,7 +27,9 @@ public class FavoriteSeriesFragment extends SeriesFragment {
 
     @Override
     protected void onCreateSeriesView(View rootView, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View emptyView = rootView.findViewById(R.id.emptyView);
+        EmptyView emptyView = rootView.findViewById(R.id.emptyView);
+        emptyView.setTitle(getString(R.string.empty_list_favorite_series_title));
+        emptyView.setContent(getString(R.string.empty_list_favorite_series_content));
 
         /* Setup favorite series */
         getSwipeRefreshLayout().setEnabled(false);

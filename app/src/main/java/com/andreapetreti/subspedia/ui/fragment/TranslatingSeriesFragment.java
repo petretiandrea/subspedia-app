@@ -24,6 +24,7 @@ import com.andreapetreti.subspedia.model.SerieTranslating;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
 import com.andreapetreti.subspedia.ui.adapter.ItemClickListener;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
+import com.andreapetreti.subspedia.ui.custom.EmptyView;
 import com.andreapetreti.subspedia.viewmodel.SerieTranslatingViewModel;
 import com.annimon.stream.Objects;
 
@@ -38,7 +39,7 @@ public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SerieListAdapter mSerieListAdapter;
-    private View mEmptyView;
+    private EmptyView mEmptyView;
 
     public TranslatingSeriesFragment() {
         // Required empty public constructor
@@ -68,6 +69,8 @@ public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
         mSerieListAdapter = new SerieListAdapter(getActivity());
 
         mEmptyView = rootView.findViewById(R.id.emptyView);
+        mEmptyView.setTitle(getString(R.string.empty_translating_title));
+        mEmptyView.setContent(getString(R.string.empty_translating_content));
         EmptyRecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewTranslating);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());

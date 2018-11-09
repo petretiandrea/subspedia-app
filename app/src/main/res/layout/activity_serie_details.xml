@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    app:statusBarBackground="@android:color/transparent"
     tools:context=".ui.SerieDetailsActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -72,6 +71,9 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" >
 
+        <com.andreapetreti.subspedia.ui.custom.EmptyView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </android.support.v4.view.ViewPager>
 
     <android.support.design.widget.FloatingActionButton
