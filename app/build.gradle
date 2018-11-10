@@ -6,9 +6,9 @@ android {
         applicationId "com.andreapetreti.subspedia"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 4
-        versionName "1.3-beta"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        versionCode 5
+        versionName "1.4-beta"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
@@ -37,25 +37,25 @@ dependencies {
     androidTestImplementation "android.arch.work:work-testing:$work_version"
 
     def SUPPORT_VERSION = "28.0.0"
-    implementation "com.android.support:support-v4:$SUPPORT_VERSION"
-    implementation "com.android.support:support-v13:$SUPPORT_VERSION"
-    implementation "com.android.support:cardview-v7:$SUPPORT_VERSION"
-    implementation "com.android.support:design:$SUPPORT_VERSION"
-    implementation "com.android.support:appcompat-v7:$SUPPORT_VERSION"
-    implementation "com.android.support:recyclerview-v7:$SUPPORT_VERSION"
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.legacy:legacy-support-v13:1.0.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.google.android.material:material:1.1.0-alpha01'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha2'
     def roomVersion = '1.1.1'
     def archLifecycleVersion = '1.1.1'
     // picasso
     implementation 'com.squareup.picasso:picasso:2.71828'
     // Room components
-    implementation "android.arch.persistence.room:runtime:$roomVersion"
-    implementation "com.android.support:support-v4:$SUPPORT_VERSION"
-    annotationProcessor "android.arch.persistence.room:compiler:$roomVersion"
-    androidTestImplementation "android.arch.persistence.room:testing:$roomVersion"
+    implementation 'androidx.room:room-runtime:2.1.0-alpha02'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    annotationProcessor 'androidx.room:room-compiler:2.1.0-alpha02'
+    androidTestImplementation 'androidx.room:room-testing:2.1.0-alpha02'
     // Lifecycle components
-    implementation "android.arch.lifecycle:extensions:$archLifecycleVersion"
-    annotationProcessor "android.arch.lifecycle:compiler:$archLifecycleVersion"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+    annotationProcessor 'androidx.lifecycle:lifecycle-compiler:2.0.0'
     // retrofit gson
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
@@ -64,7 +64,7 @@ dependencies {
 
     implementation 'com.annimon:stream:1.2.1'
 
-    implementation "com.android.support:transition:$SUPPORT_VERSION"
+    implementation 'androidx.transition:transition:1.0.1'
 
     testImplementation 'junit:junit:4.12'
     implementation project(':android-utils')

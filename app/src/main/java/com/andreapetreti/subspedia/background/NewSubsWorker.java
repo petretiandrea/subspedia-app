@@ -1,7 +1,7 @@
 package com.andreapetreti.subspedia.background;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.andreapetreti.subspedia.common.SubspediaService;
 import com.andreapetreti.subspedia.database.SerieDao;

@@ -1,41 +1,35 @@
 package com.andreapetreti.subspedia.ui.fragment;
 
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.Nullable;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.andreapetreti.android_utils.adapter.EmptyRecyclerView;
-import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
-import com.andreapetreti.subspedia.model.SerieTranslating;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
-import com.andreapetreti.subspedia.ui.adapter.ItemClickListener;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.ui.custom.EmptyView;
 import com.andreapetreti.subspedia.viewmodel.SerieTranslatingViewModel;
 import com.annimon.stream.Objects;
-
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link TranslatingSeriesFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TranslatingSeriesFragment extends android.support.v4.app.Fragment {
+public class TranslatingSeriesFragment extends androidx.fragment.app.Fragment {
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SerieListAdapter mSerieListAdapter;

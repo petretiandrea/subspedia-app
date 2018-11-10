@@ -1,10 +1,10 @@
 package com.andreapetreti.subspedia.repo;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.andreapetreti.subspedia.AppExecutor;
 import com.andreapetreti.subspedia.common.ApiResponse;
@@ -40,8 +40,6 @@ public class SubtitlesRepo {
         mSubspediaService = SubspediaService.Provider.getInstance();
     }
 
-    private static final int CACHE_SUBTITLES = 5;
-
     public LiveData<Resource<List<SubtitleWithSerie>>> getSubtitlesOf(final int idSerie) {
         return new NetworkBoundResource<List<SubtitleWithSerie>, List<Subtitle>>() {
             @Override
@@ -49,9 +47,7 @@ public class SubtitlesRepo {
                 // policy for limit the cache of subtitles
                 SubtitlesDao dao = db.subtitlesDao();
                 // remove all subtitles of tv series too old, respecting the limit.
-                Stream.of(dao.getLRUSerieSubtitle())
-                        .skip(CACHE_SUBTITLES - 1)
-                        .forEach(serieWithSubtitles -> Stream.of(serieWithSubtitles.getSubtitles()).forEach(dao::delete));
+                dao.removeLRUSerieSubtitles();
                 // save other subtitles.
                 Stream.of(item).forEach(dao::save);
             }

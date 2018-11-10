@@ -1,36 +1,23 @@
 package com.andreapetreti.subspedia.ui.fragment;
 
 
-import android.app.SearchManager;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.SearchView;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.widget.SearchView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import com.andreapetreti.android_utils.adapter.EmptyRecyclerView;
-import com.andreapetreti.android_utils.ui.LoadingBarMessage;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
-import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.ui.custom.EmptyView;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 
 import java.util.Objects;
-
-import static android.content.Context.SEARCH_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.

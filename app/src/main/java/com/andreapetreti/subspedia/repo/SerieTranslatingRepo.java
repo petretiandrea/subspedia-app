@@ -1,11 +1,10 @@
 package com.andreapetreti.subspedia.repo;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
-import android.arch.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import android.content.Context;
 
-import com.andreapetreti.subspedia.AppExecutor;
 import com.andreapetreti.subspedia.cache.SimpleLiveDataCache;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.common.SubspediaService;

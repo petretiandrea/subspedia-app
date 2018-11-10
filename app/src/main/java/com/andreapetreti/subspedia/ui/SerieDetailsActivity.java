@@ -1,27 +1,32 @@
 package com.andreapetreti.subspedia.ui;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatImageView;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.andreapetreti.subspedia.model.Subtitle;
+import com.annimon.stream.function.Consumer;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,25 +41,24 @@ import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.SubtitleWithSerie;
 import com.andreapetreti.subspedia.ui.adapter.SubtitleListAdapter;
-import com.andreapetreti.subspedia.ui.custom.EmptyView;
 import com.andreapetreti.subspedia.ui.dialog.SubtitleDialog;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Objects;
 import com.annimon.stream.Stream;
-import com.annimon.stream.function.Supplier;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 
 /**
  * Activity that shows all subtitles of specific tv serie
  */
-public class SerieDetailsActivity extends AppCompatActivity {
+public class SerieDetailsActivity extends AppCompatActivity implements Observer<Boolean> {
 
     /**
      * KEY for bundle, for pass the serie object.
@@ -80,12 +84,12 @@ public class SerieDetailsActivity extends AppCompatActivity {
     }
 
     /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
+     * The {@link PagerAdapter} that will provide
      * fragments for each of the sections. We use a
      * {@link FragmentPagerAdapter} derivative, which will keep every
      * loaded fragment in memory. If this becomes too memory intensive, it
      * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     * {@link FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -161,6 +165,8 @@ public class SerieDetailsActivity extends AppCompatActivity {
                     ContextCompat.getDrawable(SerieDetailsActivity.this, R.drawable.ic_star_border_white));
         });
 
+        mSnackbarOffline = Snackbar.make(findViewById(R.id.main_content), getString(R.string.no_connection), Snackbar.LENGTH_INDEFINITE);
+
         // Observe for the subtitles of specific tv serie
         subtitleViewModel.getSubtitlesOf(mSerie.getIdSerie()).observe(this, listResource -> {
 
@@ -170,26 +176,31 @@ public class SerieDetailsActivity extends AppCompatActivity {
             // show and hide the tab layout. Show when there is data inside list resource, and hide it if not.
             tabLayout.setVisibility(ViewVisibility.of(() -> Objects.nonNull(listResource.data) && listResource.data.size() > 0));
 
-
             /* Show something when the status is success, or show data cached, if available, during loading */
             if(listResource.status == Resource.Status.SUCCESS ||
                     (listResource.status == Resource.Status.LOADING && Objects.nonNull(listResource.data))) {
-                Map<Integer, List<SubtitleWithSerie>> mapSeason = Stream.of(listResource.data)
-                        .sortBy(subtitleWithSerie -> subtitleWithSerie.getSubtitle().getSeasonNumber())
-                        .collect(Collectors.groupingBy(subtitleWithSerie -> subtitleWithSerie.getSubtitle().getSeasonNumber()));
 
-                mapSeason = Stream.of(mapSeason.entrySet())
-                        .sorted((e1,e2)-> Integer.compare(e1.getKey(), e2.getKey()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+                int currentSeason = 1;
+                List<SubtitleWithSerie> subtitlesTmp = new ArrayList<>();
 
                 tabLayout.removeAllTabs();
 
-                Stream.of(mapSeason).forEach(integerListEntry -> {
-                    String title = String.format(Locale.getDefault(), getString(R.string.season), integerListEntry.getKey());
-                    tabLayout.addTab(tabLayout.newTab().setText(title));
-                    subtitles.put(integerListEntry.getKey() - 1, integerListEntry.getValue());
-                });
+                ListIterator<SubtitleWithSerie> it = listResource.data.listIterator();
 
+                while(it.hasNext()) {
+                    SubtitleWithSerie subtitle = it.next();
+
+                    if(subtitle.getSubtitle().getSeasonNumber() > currentSeason || !it.hasNext()) {
+                        String title = String.format(Locale.getDefault(), getString(R.string.season), currentSeason);
+                        tabLayout.addTab(tabLayout.newTab().setText(title));
+                        subtitles.put(currentSeason - 1, subtitlesTmp);
+                        subtitlesTmp = new ArrayList<>();
+                        currentSeason++;
+                    }
+
+                    if(subtitle.getSubtitle().getSeasonNumber() == currentSeason)
+                        subtitlesTmp.add(subtitle);
+                }
                 mSectionsPagerAdapter.notifyDataSetChanged();
             }
         });
@@ -197,18 +208,20 @@ public class SerieDetailsActivity extends AppCompatActivity {
         // Listener for action button, when pressed change the "favorite" status of serie.
         favoriteActionBtn.setOnClickListener(v -> seriesViewModel.setFavoriteSerie(mSerie.getIdSerie(), !mSerie.isFavorite()));
 
-        mSnackbarOffline = Snackbar.make(findViewById(R.id.main_content), "No connection!", Snackbar.LENGTH_INDEFINITE);
-
-        mSnackbarOffline.show();
         setupNetworkStatus();
     }
 
-
+    /**
+     * Setup a live data for network status.
+     */
     private void setupNetworkStatus() {
         LiveData<Boolean> networkData = new ConnectionLiveData(this);
-        networkData.observe(this, connected -> {
-            System.out.println(connected);
-        });
+        networkData.observe(this, this);
+    }
+
+    @Override
+    public void onChanged(Boolean connected) {
+        if(connected) mSnackbarOffline.dismiss(); else mSnackbarOffline.show();
     }
 
     @Override

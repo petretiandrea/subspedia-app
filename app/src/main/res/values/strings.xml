@@ -48,8 +48,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="no_connection">Sei offline. Riattiva la tua connessione ad internet per accedere ai contenuti di Subspedia.</string>
 
-    <string name="error_subspedia">Mi dispiace, ma non riesco a contattare Subspedia</string>
-
     <!-- Empty states strings -->
     <string name="empty_last_subtitles_title">Oh! Nessun nuovo sottotitolo</string>
     <string name="empty_last_subtitles_content">Attendi la traduzione di qualche sottotitolo e riprova.</string>

@@ -3,7 +3,7 @@ package com.andreapetreti.android_utils;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;

@@ -4,28 +4,20 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import android.webkit.MimeTypeMap;
 
 import com.andreapetreti.android_utils.downloadmanager.DownloadManager;
 import com.andreapetreti.subspedia.DashboardActivity;
 import com.andreapetreti.subspedia.R;
-import com.andreapetreti.subspedia.model.Serie;
-import com.andreapetreti.subspedia.model.Subtitle;
 import com.andreapetreti.subspedia.model.SubtitleWithSerie;
-import com.annimon.stream.Collectors;
 import com.annimon.stream.Optional;
-import com.annimon.stream.Stream;
 
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 

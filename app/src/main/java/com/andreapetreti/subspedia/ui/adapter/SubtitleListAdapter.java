@@ -1,8 +1,8 @@
 package com.andreapetreti.subspedia.ui.adapter;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +12,8 @@ import android.widget.TextView;
 import com.andreapetreti.android_utils.PicassoSingleton;
 import com.andreapetreti.android_utils.adapter.RecyclerListAdapter;
 import com.andreapetreti.subspedia.R;
-import com.andreapetreti.subspedia.model.Subtitle;
 import com.andreapetreti.subspedia.model.SubtitleWithSerie;
 import com.andreapetreti.subspedia.utils.SubspediaUtils;
-import com.squareup.picasso.Cache;
 import com.squareup.picasso.Picasso;
 
 import java.util.Date;

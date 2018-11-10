@@ -1,12 +1,10 @@
 package com.andreapetreti.subspedia.common;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
 
 import retrofit2.Response;
 

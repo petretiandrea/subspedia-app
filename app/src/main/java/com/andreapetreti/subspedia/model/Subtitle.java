@@ -1,9 +1,9 @@
 package com.andreapetreti.subspedia.model;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.Index;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.Index;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -12,8 +12,6 @@ import com.annimon.stream.Optional;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
-
-import retrofit2.http.PUT;
 
 @Entity(primaryKeys = {"mIdSerie", "mSeasonNumber", "mEpisodeNumber"},
         indices=@Index(value="mIdSerie"))

@@ -1,6 +1,6 @@
 package com.andreapetreti.subspedia.cache;
 
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.LiveData;
 
 public class SimpleLiveDataCache<T> {
 
