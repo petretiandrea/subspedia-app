@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     defaultConfig {
         applicationId "com.andreapetreti.subspedia"
         minSdkVersion 16
@@ -36,7 +36,7 @@ dependencies {
     implementation "android.arch.work:work-runtime:$work_version"
     androidTestImplementation "android.arch.work:work-testing:$work_version"
 
-    def SUPPORT_VERSION = "27.1.1"
+    def SUPPORT_VERSION = "28.0.0"
     implementation "com.android.support:support-v4:$SUPPORT_VERSION"
     implementation "com.android.support:support-v13:$SUPPORT_VERSION"
     implementation "com.android.support:cardview-v7:$SUPPORT_VERSION"
@@ -50,7 +50,7 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     // Room components
     implementation "android.arch.persistence.room:runtime:$roomVersion"
-    implementation 'com.android.support:support-v4:27.1.1'
+    implementation "com.android.support:support-v4:$SUPPORT_VERSION"
     annotationProcessor "android.arch.persistence.room:compiler:$roomVersion"
     androidTestImplementation "android.arch.persistence.room:testing:$roomVersion"
     // Lifecycle components

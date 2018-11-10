@@ -8,7 +8,8 @@
         <item name="android:textColorPrimary">@color/primaryTextColor</item>
         <item name="colorAccent">@color/secondaryColor</item>
 
-        <item name="coordinatorLayoutStyle">@style/Widget.Design.CoordinatorLayout</item>
+        <!-- <item name="coordinatorLayoutStyle">@style/Widget.Design.CoordinatorLayout</item> -->
+        <item name="coordinatorLayoutStyle">@style/Widget.Support.CoordinatorLayout</item>
     </style>
 
     <style name="AppTheme.DetailSeries" parent="AppTheme"/>

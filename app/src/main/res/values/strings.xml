@@ -62,4 +62,7 @@
 
     <string name="empty_list_favorite_series_title">Impossibile! Non segui nessuna serie TV?</string>
     <string name="empty_list_favorite_series_content">Aggiungi una serie TV ai preferiti per riceve notifiche dei nuovi episodi.</string>
+
+    <string name="empty_list_details_serie_title">Qualcosa non va…</string>
+    <string name="empty_list_details_serie_content">Non ci sono episodi per questa serie TV? Controlla la tua connessione.</string>
 </resources>

@@ -1,5 +1,7 @@
 package com.andreapetreti.subspedia.ui;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
@@ -7,7 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabItem;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -27,6 +29,8 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.andreapetreti.android_utils.PicassoSingleton;
+import com.andreapetreti.android_utils.ViewVisibility;
+import com.andreapetreti.android_utils.connectivity.ConnectionLiveData;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.model.Serie;
@@ -39,6 +43,7 @@ import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Objects;
 import com.annimon.stream.Stream;
+import com.annimon.stream.function.Supplier;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -88,6 +93,9 @@ public class SerieDetailsActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
+    private Snackbar mSnackbarOffline;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,14 +164,16 @@ public class SerieDetailsActivity extends AppCompatActivity {
         // Observe for the subtitles of specific tv serie
         subtitleViewModel.getSubtitlesOf(mSerie.getIdSerie()).observe(this, listResource -> {
 
-            if(listResource.status == Resource.Status.LOADING) {
-                progress.setVisibility(View.VISIBLE);
-                tabLayout.setVisibility(View.GONE);
-            }
+            // show and hide loading bar when is in loading status and not.
+            progress.setVisibility(ViewVisibility.of(() -> listResource.status.equals(Resource.Status.LOADING)));
 
+            // show and hide the tab layout. Show when there is data inside list resource, and hide it if not.
+            tabLayout.setVisibility(ViewVisibility.of(() -> Objects.nonNull(listResource.data) && listResource.data.size() > 0));
+
+
+            /* Show something when the status is success, or show data cached, if available, during loading */
             if(listResource.status == Resource.Status.SUCCESS ||
                     (listResource.status == Resource.Status.LOADING && Objects.nonNull(listResource.data))) {
-
                 Map<Integer, List<SubtitleWithSerie>> mapSeason = Stream.of(listResource.data)
                         .sortBy(subtitleWithSerie -> subtitleWithSerie.getSubtitle().getSeasonNumber())
                         .collect(Collectors.groupingBy(subtitleWithSerie -> subtitleWithSerie.getSubtitle().getSeasonNumber()));
@@ -180,16 +190,25 @@ public class SerieDetailsActivity extends AppCompatActivity {
                     subtitles.put(integerListEntry.getKey() - 1, integerListEntry.getValue());
                 });
 
-                tabLayout.setVisibility(View.VISIBLE);
                 mSectionsPagerAdapter.notifyDataSetChanged();
-
-                if(listResource.status == Resource.Status.SUCCESS)
-                    progress.setVisibility(View.GONE);
             }
         });
 
         // Listener for action button, when pressed change the "favorite" status of serie.
         favoriteActionBtn.setOnClickListener(v -> seriesViewModel.setFavoriteSerie(mSerie.getIdSerie(), !mSerie.isFavorite()));
+
+        mSnackbarOffline = Snackbar.make(findViewById(R.id.main_content), "No connection!", Snackbar.LENGTH_INDEFINITE);
+
+        mSnackbarOffline.show();
+        setupNetworkStatus();
+    }
+
+
+    private void setupNetworkStatus() {
+        LiveData<Boolean> networkData = new ConnectionLiveData(this);
+        networkData.observe(this, connected -> {
+            System.out.println(connected);
+        });
     }
 
     @Override
