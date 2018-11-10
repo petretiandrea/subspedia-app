@@ -52,7 +52,12 @@ public class SubtitleListAdapter extends RecyclerListAdapter<SubtitleWithSerie, 
     @Override
     protected void onBindVHolder(@NonNull SubtitleViewHolder holder, int position) {
         SubtitleWithSerie sub = itemAt(position);
-        mPicasso.load(sub.getSubtitle().getSubtitleImage()).fit().centerCrop(Gravity.CENTER).into(holder.mThubSub);
+        mPicasso.load(sub.getSubtitle().getSubtitleImage())
+                .placeholder(R.drawable.placeholder_subtitles)
+                .fit()
+                .centerCrop(Gravity.CENTER)
+                .into(holder.mThubSub);
+
         if(getItemViewType(position) == Type.TYPE_SUB.ordinal()) {
             holder.mTxtTitle.setText(sub.getSubtitle().getEpisodeTitle());
             holder.mTxtCaption.setText(String.format(Locale.getDefault(),

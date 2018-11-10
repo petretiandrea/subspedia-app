@@ -80,7 +80,11 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
         if(mSerieFilteredList != null) {
             // extended for translating series
             Serie serie = mSerieFilteredList.get(i);
-            PicassoSingleton.getSharedInstance(mInflater.getContext()).load(serie.getLinkImage()).fit().centerCrop(Gravity.CENTER).into(serieViewHolder.mImageViewLogo);
+            PicassoSingleton.getSharedInstance(mInflater.getContext()).load(serie.getLinkImage())
+                    .fit()
+                    .placeholder(R.drawable.placeholder_series)
+                    .centerCrop(Gravity.CENTER)
+                    .into(serieViewHolder.mImageViewLogo);
 
             if(serieViewHolder instanceof SerieTranslatingViewHolder) {
                 SerieTranslating tmp = (SerieTranslating) serie;
@@ -94,7 +98,6 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
                 ((SerieTranslatingViewHolder) serieViewHolder).mImageStatus.setImageResource(tmp.isRevisionStatus() ?
                                                                                 R.drawable.ic_edit_black_24dp :
                                                                                 R.drawable.ic_time_24dp);
-
             } else {
                 serieViewHolder.mFavourite.setImageResource(serie.isFavorite() ? R.drawable.ic_star_orange_24dp : R.drawable.ic_star_border_orange_24dp);
                 serieViewHolder.txtTitle.setText(serie.getName());
@@ -102,8 +105,6 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
                         serie.getStatus().toUpperCase(),
                         serie.getYear()));
             }
-        } else {
-            // show empty message.
         }
     }
 
