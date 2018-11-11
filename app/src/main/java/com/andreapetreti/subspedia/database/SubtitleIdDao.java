@@ -20,4 +20,7 @@ public interface SubtitleIdDao {
 
     @Delete
     void delete(SubtitleId subtitleId);
+
+    @Query("DELETE FROM subtitleid")
+    void deleteAll();
 }

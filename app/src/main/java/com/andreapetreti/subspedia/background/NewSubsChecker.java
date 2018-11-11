@@ -42,7 +42,7 @@ public class NewSubsChecker extends ContextWrapper {
          * this new subs to database as already checked subs. */
         return Stream.of(subtitles)
                 .flatMap(subtitle -> Stream.of(favoriteSeries).filter(value -> value.getIdSerie() == subtitle.getIdSerie()).map(serie -> new SubtitleWithSerie(subtitle, serie)))
-                .filter(value -> Stream.of(alreadyChecked).anyMatch(id -> value.getSubtitle().getIdEpisode() == id.getSubtitleId()))
+                .filter(value -> !Stream.of(alreadyChecked).anyMatch(id -> value.getSubtitle().getIdEpisode() == id.getSubtitleId()))
                 .peek(subtitleWithSerie -> mSubtitleIdDao.insert(new SubtitleId(subtitleWithSerie.getSubtitle().getIdEpisode())))
                 .collect(Collectors.toList());
     }
