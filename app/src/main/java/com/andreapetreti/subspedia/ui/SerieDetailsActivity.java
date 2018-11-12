@@ -191,11 +191,13 @@ public class SerieDetailsActivity extends AppCompatActivity implements Observer<
                     SubtitleWithSerie subtitle = it.next();
 
                     if(subtitle.getSubtitle().getSeasonNumber() > currentSeason || !it.hasNext()) {
-                        String title = String.format(Locale.getDefault(), getString(R.string.season), currentSeason);
-                        tabLayout.addTab(tabLayout.newTab().setText(title));
-                        subtitles.put(currentSeason - 1, subtitlesTmp);
-                        subtitlesTmp = new ArrayList<>();
-                        currentSeason++;
+                        if(!subtitlesTmp.isEmpty()) {
+                            String title = String.format(Locale.getDefault(), getString(R.string.season), currentSeason);
+                            tabLayout.addTab(tabLayout.newTab().setText(title));
+                            subtitles.put(currentSeason - 1, subtitlesTmp);
+                            subtitlesTmp = new ArrayList<>();
+                            currentSeason++;
+                        }
                     }
 
                     if(subtitle.getSubtitle().getSeasonNumber() == currentSeason)
