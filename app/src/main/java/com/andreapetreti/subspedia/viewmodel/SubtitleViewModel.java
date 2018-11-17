@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class SubtitleViewModel extends AndroidViewModel {
 
-    private MediatorLiveData<Resource<List<SubtitleWithSerie>>> mSubtitles;
+    private LiveData<Resource<List<SubtitleWithSerie>>> mSubtitles;
     private SubtitlesRepo mSubtitlesRepo;
 
     public SubtitleViewModel(@NonNull Application application) {
@@ -30,7 +30,7 @@ public class SubtitleViewModel extends AndroidViewModel {
 
     public LiveData<Resource<List<SubtitleWithSerie>>> getSubtitlesOf(int idSerie) {
         if(mSubtitles == null) {
-            mSubtitlesRepo.getSubtitlesOf(idSerie);
+            mSubtitles = mSubtitlesRepo.getSubtitlesOf(idSerie);
         }
         return mSubtitles;
     }
