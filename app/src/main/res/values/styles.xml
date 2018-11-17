@@ -12,6 +12,12 @@
         <item name="coordinatorLayoutStyle">@style/Widget.Support.CoordinatorLayout</item>
     </style>
 
+    <style name="ToolbarTextAppearance" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:fontFamily">@font/subspedia_font</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="AppTheme.DetailSeries" parent="AppTheme"/>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
@@ -24,17 +30,22 @@
         <item name="itemTextColor">@color/selec_item_nav</item>
     </style>
 
-    <style name="HeroTransparent" parent="AppTheme">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
     <style name="SplashTheme" parent="AppTheme">
         <item name="android:windowBackground">@drawable/background_splash</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="AppTheme.Settings" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="android:textColorPrimary">@color/primaryTextColor</item>
+        <item name="colorAccent">@color/secondaryColor</item>
+
+        <!-- <item name="coordinatorLayoutStyle">@style/Widget.Design.CoordinatorLayout</item> -->
+        <item name="coordinatorLayoutStyle">@style/Widget.Support.CoordinatorLayout</item>
     </style>
 
 </resources>

@@ -1,11 +1,18 @@
 package com.andreapetreti.subspedia;
 
 import android.Manifest;
+
+import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
+
+import android.app.SearchManager;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+
+import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -14,6 +21,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -91,9 +102,6 @@ public class DashboardActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ((TextView)findViewById(R.id.toolbar_title)).setText(toolbar.getTitle());
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-
         mConnectionBanner = findViewById(R.id.offline_banner);
         mSwipeRefreshLayout = findViewById(R.id.swipe_loading);
         BottomNavigationView bottomNavigationView = findViewById(R.id.navigation);
@@ -110,7 +118,7 @@ public class DashboardActivity extends AppCompatActivity {
                 TAG_FRAGMENT_LAST_SUBS;
 
         // setup periodic worker for check new subtitles
-        setupNewSubsWorker();
+        SubspediaUtils.enableNewSubsWorker(this);
         setupNetworkLiveData();
     }
 
@@ -121,12 +129,10 @@ public class DashboardActivity extends AppCompatActivity {
         SeriesViewModel seriesViewModel = ViewModelProviders.of(this).get(SeriesViewModel.class);
         seriesViewModel.getAllSeries().observe(this, listResource -> {
             if(listResource.status == Resource.Status.LOADING) {
-                System.out.println("Loading...");
                 mSwipeRefreshLayout.setRefreshing(true);
             }
 
             if(listResource.status == Resource.Status.SUCCESS || listResource.status == Resource.Status.ERROR) {
-                System.out.println("Success...");
                 mSwipeRefreshLayout.setRefreshing(false);
                 switchFragment(mCurrentSwitchFragment);
             }
@@ -208,17 +214,21 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Initialize the worker for check new subtitle download
-     */
-    private void setupNewSubsWorker() {
-        Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
-        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(NewSubsWorker.class, Constants.PERIOD_SCHEDULE_NOTIFICATION_HOUR, TimeUnit.HOURS)
-                .setInputData(new Data.Builder().putLong(Constants.KEY_PERIOD_SCHEDULE_NOTIFICATION, Constants.PERIOD_SCHEDULE_NOTIFICATION_MILLIS).build())
-                .setConstraints(constraints)
-                .build();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.info:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
 
-        WorkManager.getInstance().enqueueUniquePeriodicWork("periodic_new_sub", ExistingPeriodicWorkPolicy.KEEP, workRequest);
+            default: return false;
+        }
     }
 }

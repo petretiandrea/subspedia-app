@@ -3,36 +3,68 @@ package com.andreapetreti.subspedia.utils;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
+import android.preference.PreferenceManager;
 import android.webkit.MimeTypeMap;
 
 import com.andreapetreti.android_utils.downloadmanager.DownloadManager;
+import com.andreapetreti.subspedia.Constants;
 import com.andreapetreti.subspedia.DashboardActivity;
 import com.andreapetreti.subspedia.R;
+import com.andreapetreti.subspedia.background.NewSubsWorker;
+import com.andreapetreti.subspedia.model.Serie;
+import com.andreapetreti.subspedia.model.Subtitle;
 import com.andreapetreti.subspedia.model.SubtitleWithSerie;
+import com.annimon.stream.Collectors;
 import com.annimon.stream.Optional;
+import com.annimon.stream.Stream;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 public class SubspediaUtils {
 
-    public static String generateSubspediaFilename(SubtitleWithSerie subtitle) {
-        /* Manifest.s01.e03.subspedia */
-        return String.format(Locale.getDefault(), "%s_s%d_e%d_subspedia",
-                subtitle.getSerie().getName(),
-                subtitle.getSubtitle().getSeasonNumber(),
-                subtitle.getSubtitle().getEpisodeNumber());
+    private static final String NEW_SUB_WORKER_ID = "periodic_new_sub";
+
+    public static boolean isNotificationSubsEnabled(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return sharedPreferences.getBoolean(context.getString(R.string.key_settings_notification), true);
     }
 
-    public static String getMimeType(String url) {
-        return MimeTypeMap.getFileExtensionFromUrl(url);
+    public static void enableNewSubsWorker(Context context) {
+        if(isNotificationSubsEnabled(context)) {
+            Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+            PeriodicWorkRequest workRequest = new PeriodicWorkRequest
+                    .Builder(NewSubsWorker.class, Constants.PERIOD_SCHEDULE_NOTIFICATION_HOUR, TimeUnit.HOURS)
+                    .setInputData(new Data.Builder()
+                            .putLong(Constants.KEY_PERIOD_SCHEDULE_NOTIFICATION, Constants.PERIOD_SCHEDULE_NOTIFICATION_MILLIS).build())
+                    .setConstraints(constraints)
+                    .build();
+
+            WorkManager.getInstance().enqueueUniquePeriodicWork(NEW_SUB_WORKER_ID, ExistingPeriodicWorkPolicy.KEEP, workRequest);
+        }
+    }
+
+    public static void disableNewSubWorker(Context context) {
+        if(isNotificationSubsEnabled(context)) {
+            WorkManager.getInstance().cancelAllWorkByTag(NEW_SUB_WORKER_ID);
+        }
     }
 
     /**
@@ -59,7 +91,7 @@ public class SubspediaUtils {
                     subtitle.getSubtitle().getEpisodeNumber()))
                 .setUri(Uri.parse(subtitle.getSubtitle().getLinkFile()))
                 .setDestinationInExternalPublicDir("Subspedia", "")
-                .setPendingIntent(PendingIntent.getActivity(context, 0, thisApp, PendingIntent.FLAG_CANCEL_CURRENT));
+                .setPendingIntent(PendingIntent.getActivity(context, 0, thisApp, PendingIntent.FLAG_UPDATE_CURRENT));
 
         downloadManager.enqueue(request);
     }

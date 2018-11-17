@@ -19,8 +19,7 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".DashboardActivity"
-            android:label="@string/app_name">
-        </activity>
+            android:label="@string/app_name"></activity>
         <activity
             android:name=".ui.SerieDetailsActivity"
             android:label="@string/title_activity_main"
@@ -37,9 +36,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:theme="@style/AppTheme.Settings"
+            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>

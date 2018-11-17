@@ -1,7 +1,12 @@
 package com.andreapetreti.subspedia.ui.fragment;
 
+import android.animation.Animator;
 import android.app.SearchManager;
+
+import androidx.core.view.MenuItemCompat;
 import androidx.lifecycle.ViewModelProviders;
+
+import android.os.Build;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -12,7 +17,9 @@ import androidx.appcompat.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 
 import com.andreapetreti.android_utils.adapter.EmptyRecyclerView;
@@ -89,9 +96,24 @@ public abstract class SeriesFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.dashboard_menu, menu);
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                setItemsVisibility(menu, menuItem, false);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                setItemsVisibility(menu, menuItem, true);
+                return true;
+            }
+        });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -106,5 +128,33 @@ public abstract class SeriesFragment extends Fragment {
                 return false;
             }
         });
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private void setItemsVisibility(Menu menu, MenuItem exception, boolean visible) {
+        for (int i=0; i<menu.size(); ++i) {
+            MenuItem item = menu.getItem(i);
+            if (item != exception) item.setVisible(visible);
+        }
+    }
+
+    private void circleRevealView(View toBeReveal, View frame) {
+
+        int centerX = (frame.getLeft() + frame.getRight()) / 2;
+        int centerY = (frame.getTop() + frame.getBottom()) / 2;
+        float startRadius = 0.0f;
+        float endRadius = Math.max(frame.getWidth(), frame.getHeight());
+
+        if(Build.VERSION.SDK_INT >= 21) {
+            Animator anim = ViewAnimationUtils.createCircularReveal(toBeReveal,
+                    centerX,
+                    centerY,
+                    startRadius,
+                    endRadius);
+            toBeReveal.setVisibility(View.VISIBLE);
+            anim.start();
+            return;
+        }
+        toBeReveal.setVisibility(View.VISIBLE);
     }
 }
