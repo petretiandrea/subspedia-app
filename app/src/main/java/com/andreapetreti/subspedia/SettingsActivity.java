@@ -20,7 +20,15 @@ import android.preference.SwitchPreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
+import com.andreapetreti.android_utils.TimeValue;
+import com.andreapetreti.subspedia.background.SubtitleWorker;
+import com.andreapetreti.subspedia.model.Subtitle;
 import com.andreapetreti.subspedia.utils.SubspediaUtils;
+import com.annimon.stream.Objects;
+
+import java.sql.Time;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
@@ -36,26 +44,26 @@ import androidx.appcompat.widget.Toolbar;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends AppCompatPreferenceActivity {
+public class SettingsActivity extends AppCompatPreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
+    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = (preference, value) -> {
+        final Context context = preference.getContext();
+        final String stringValue = Objects.isNull(value) ? "" : value.toString();
 
-            if(preference instanceof SwitchPreference) {
-                // no change summary.
-            } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
-            }
-            return true;
+        if(preference.getKey().equals(context.getString(R.string.key_interval_settings))) {
+            ListPreference listPreference = (ListPreference) preference;
+            preference.setSummary(context.getString(R.string.summary_interval_settings,
+                    listPreference.getEntries()[listPreference.findIndexOfValue(value.toString())]));
+        } else {
+            // For all other preferences, set the summary to the value's
+            // simple string representation.
+            preference.setSummary(stringValue);
         }
+        return true;
     };
 
     /**
@@ -87,7 +95,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         if(preference instanceof SwitchPreference)
             value = sharedPreferences.getBoolean(preference.getKey(), false);
         else
-            value = sharedPreferences.getString(preference.getKey(), "");
+            value = sharedPreferences.getString(preference.getKey(), null);
 
         // Trigger the listener immediately with the preference's
         // current value.
@@ -101,6 +109,20 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         setupActionBar();
         getFragmentManager().beginTransaction().replace(android.R.id.content,
                 new GeneralPreferenceFragment()).commit();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     /**
@@ -131,6 +153,24 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName);
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        // is the list of interval
+        if(key.equals(getString(R.string.key_interval_settings))) {
+            TimeValue interval = TimeValue.fromMinutes(Long.parseLong(sharedPreferences.getString(key, "60")));
+            SubtitleWorker.changeIntervalSubtitleNotification(this, interval);
+        }
+        // is the notification switch
+        else if(key.equals(getString(R.string.key_settings_notification))) {
+            boolean enabled = sharedPreferences.getBoolean(key, true);
+            if(enabled)
+                SubtitleWorker.enableSubtitleNotification(this);
+            else
+                SubtitleWorker.disableSubtitleNotification(this);
+        }
+    }
+
     /**
      * This fragment shows general preferences only. It is used when the
      * activity is showing a two-pane settings UI.
@@ -144,16 +184,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             setHasOptionsMenu(true);
 
             SwitchPreference switchPreference = (SwitchPreference) findPreference(getString(R.string.key_settings_notification));
-            switchPreference.setOnPreferenceChangeListener((preference, on) -> {
-                if((Boolean) on)
-                    SubspediaUtils.enableNewSubsWorker(preference.getContext());
-                else
-                    SubspediaUtils.disableNewSubWorker(preference.getContext());
-                return true;
-            });
 
-
-            // bindPreferenceSummaryToValue(switchPreference);
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.key_interval_settings)));
         }
 
         @Override

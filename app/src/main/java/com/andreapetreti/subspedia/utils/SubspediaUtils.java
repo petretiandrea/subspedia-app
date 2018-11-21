@@ -40,33 +40,6 @@ import java.util.concurrent.TimeUnit;
 
 public class SubspediaUtils {
 
-    private static final String NEW_SUB_WORKER_ID = "periodic_new_sub";
-
-    public static boolean isNotificationSubsEnabled(Context context) {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return sharedPreferences.getBoolean(context.getString(R.string.key_settings_notification), true);
-    }
-
-    public static void enableNewSubsWorker(Context context) {
-        if(isNotificationSubsEnabled(context)) {
-            Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
-            PeriodicWorkRequest workRequest = new PeriodicWorkRequest
-                    .Builder(NewSubsWorker.class, Constants.PERIOD_SCHEDULE_NOTIFICATION_HOUR, TimeUnit.HOURS)
-                    .setInputData(new Data.Builder()
-                            .putLong(Constants.KEY_PERIOD_SCHEDULE_NOTIFICATION, Constants.PERIOD_SCHEDULE_NOTIFICATION_MILLIS).build())
-                    .setConstraints(constraints)
-                    .build();
-
-            WorkManager.getInstance().enqueueUniquePeriodicWork(NEW_SUB_WORKER_ID, ExistingPeriodicWorkPolicy.KEEP, workRequest);
-        }
-    }
-
-    public static void disableNewSubWorker(Context context) {
-        if(isNotificationSubsEnabled(context)) {
-            WorkManager.getInstance().cancelAllWorkByTag(NEW_SUB_WORKER_ID);
-        }
-    }
-
     /**
      * Use the android download manager, for download the subtitle.
      * @param context

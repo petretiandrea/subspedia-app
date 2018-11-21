@@ -8,6 +8,12 @@
             android:key="@string/key_settings_notification"
             android:summary="@string/summary_enable_notification"
             android:title="@string/title_enable_notification" />
+        <ListPreference
+            android:defaultValue="60"
+            android:entries="@array/interval_check_update_resources"
+            android:entryValues="@array/interval_check_updates_values"
+            android:key="@string/key_interval_settings"
+            android:title="@string/interval_settings_title" />
     </PreferenceCategory>
 
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->

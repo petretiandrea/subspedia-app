@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
+import com.andreapetreti.subspedia.background.SubtitleWorker;
 import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.core.app.ActivityCompat;
@@ -118,7 +119,7 @@ public class DashboardActivity extends AppCompatActivity {
                 TAG_FRAGMENT_LAST_SUBS;
 
         // setup periodic worker for check new subtitles
-        SubspediaUtils.enableNewSubsWorker(this);
+        SubtitleWorker.enableSubtitleNotification(this);
         setupNetworkLiveData();
     }
 

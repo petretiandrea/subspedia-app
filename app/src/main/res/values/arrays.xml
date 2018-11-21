@@ -1,2 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string-array name="interval_check_update_resources" >
+        <item>@string/interval_quarter</item>
+        <item>@string/interval_half</item>
+        <item>@string/interval_one_hour</item>
+        <item>@string/interval_two_hour</item>
+        <item>@string/interval_five_hour</item>
+    </string-array>
+
+    <string-array name="interval_check_updates_values" >
+        <item>15</item> <!-- 15 minutes -->
+        <item>30</item> <!-- 30 minutes -->
+        <item>60</item> <!-- 1 hour -->
+        <item>120</item> <!-- 2 hour -->
+        <item>300</item> <!-- 5 hour -->
+    </string-array>
+</resources>

@@ -53,4 +53,13 @@
 
     <string name="url_privacy_policy">http://andreapetreti.altervista.org/privacy-policy-subspedia.html</string>
     <string name="url_terms_cond">http://andreapetreti.altervista.org/terms-subspedia.html</string>
+
+    <string name="interval_settings_title">Controllo nuovi sottotittoli</string>
+    <string name="interval_quarter">15 minuti</string>
+    <string name="interval_half">30 minuti</string>
+    <string name="interval_one_hour">1 ora</string>
+    <string name="interval_two_hour">2 ore</string>
+    <string name="interval_five_hour">5 ore</string>
+    <string name="key_interval_settings">key_interval_settings</string>
+    <string name="summary_interval_settings">Intervallo per il controllo di nuovi sottotitoli. [%1$s]</string>
 </resources>
