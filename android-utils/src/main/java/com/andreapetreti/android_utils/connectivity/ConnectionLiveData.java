@@ -7,9 +7,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.Handler;
+
+import com.annimon.stream.Objects;
+import com.annimon.stream.Optional;
+import com.annimon.stream.function.ToBooleanFunction;
+
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 
@@ -117,8 +123,10 @@ public class ConnectionLiveData extends LiveData<Boolean> {
     }
 
     private boolean isWifiMobileConnected() {
-        boolean mobileIsConnected = mConnectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnectedOrConnecting();
-        boolean wifiIsConnected = mConnectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnectedOrConnecting();
+        final NetworkInfo mobileInfo = mConnectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        final NetworkInfo wifiInfo = mConnectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        boolean mobileIsConnected = Objects.nonNull(mobileInfo) && mobileInfo.isConnectedOrConnecting();
+        boolean wifiIsConnected = Objects.nonNull(wifiInfo) && wifiInfo.isConnectedOrConnecting();
         return wifiIsConnected || mobileIsConnected;
     }
 }

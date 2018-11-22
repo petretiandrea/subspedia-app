@@ -6,8 +6,8 @@ android {
         applicationId "com.andreapetreti.subspedia"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 8
-        versionName "1.6"
+        versionCode 9
+        versionName "1.6.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
