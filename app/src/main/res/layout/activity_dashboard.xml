@@ -52,7 +52,7 @@
             app:labelVisibilityMode="labeled"
             app:menu="@menu/navigation" />
 
-        <com.andreapetreti.android_utils.ui.ColorSwipeRefreshLayout
+        <com.andreapetreti.androidcommonutils.view.ColorSwipeRefreshLayout
             android:id="@+id/swipe_loading"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -74,7 +74,7 @@
                 android:layout_height="match_parent">
 
             </FrameLayout>
-        </com.andreapetreti.android_utils.ui.ColorSwipeRefreshLayout>
+        </com.andreapetreti.androidcommonutils.view.ColorSwipeRefreshLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

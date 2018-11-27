@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.andreapetreti.android_utils.adapter.EmptyRecyclerView;
+import com.andreapetreti.androidcommonutils.view.EmptyRecyclerView;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.ui.adapter.SubtitleListAdapter;

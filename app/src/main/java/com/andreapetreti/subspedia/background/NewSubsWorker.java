@@ -1,13 +1,7 @@
 package com.andreapetreti.subspedia.background;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
-import androidx.annotation.NonNull;
-
-import com.andreapetreti.subspedia.Constants;
-import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.SubspediaService;
 import com.andreapetreti.subspedia.database.SerieDao;
 import com.andreapetreti.subspedia.database.SubsDatabase;
@@ -17,14 +11,8 @@ import com.andreapetreti.subspedia.model.SubtitleWithSerie;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import androidx.work.Constraints;
-import androidx.work.Data;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
+import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import retrofit2.Response;

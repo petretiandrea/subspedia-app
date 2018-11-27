@@ -1,59 +1,53 @@
 package com.andreapetreti.subspedia.ui;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.andreapetreti.subspedia.model.Subtitle;
-import com.annimon.stream.function.Consumer;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.tabs.TabLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.andreapetreti.android_utils.PicassoSingleton;
-import com.andreapetreti.android_utils.ViewVisibility;
-import com.andreapetreti.android_utils.connectivity.ConnectionLiveData;
+import com.andreapetreti.androidcommonutils.connectivity.ConnectionLiveData;
+import com.andreapetreti.androidcommonutils.view.ViewVisibility;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.SubtitleWithSerie;
 import com.andreapetreti.subspedia.ui.adapter.SubtitleListAdapter;
 import com.andreapetreti.subspedia.ui.dialog.SubtitleDialog;
+import com.andreapetreti.subspedia.utils.PicassoSingleton;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
 import com.andreapetreti.subspedia.viewmodel.SubtitleViewModel;
-import com.annimon.stream.Collectors;
 import com.annimon.stream.Objects;
-import com.annimon.stream.Stream;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
-import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 /**
  * Activity that shows all subtitles of specific tv serie
@@ -131,7 +125,7 @@ public class SerieDetailsActivity extends AppCompatActivity implements Observer<
 
         // Load with picasso the big image of tv serie
         AppCompatImageView extendImage = findViewById(R.id.header);
-        PicassoSingleton.getSharedInstance(this)
+        PicassoSingleton.getInstance(this)
                 .load(mSerie.getLinkBannerImage())
                 .into(TargetImageGradient.of(extendImage, R.drawable.gradient_shape));
 
@@ -171,10 +165,10 @@ public class SerieDetailsActivity extends AppCompatActivity implements Observer<
         subtitleViewModel.getSubtitlesOf(mSerie.getIdSerie()).observe(this, listResource -> {
 
             // show and hide loading bar when is in loading status and not.
-            progress.setVisibility(ViewVisibility.of(() -> listResource.status.equals(Resource.Status.LOADING)));
+            ViewVisibility.apply(progress, () -> listResource.status.equals(Resource.Status.LOADING));
 
             // show and hide the tab layout. Show when there is data inside list resource, and hide it if not.
-            tabLayout.setVisibility(ViewVisibility.of(() -> Objects.nonNull(listResource.data) && listResource.data.size() > 0));
+            ViewVisibility.apply(tabLayout, () -> Objects.nonNull(listResource.data) && listResource.data.size() > 0);
 
             /* Show something when the status is success, or show data cached, if available, during loading */
             if(listResource.status == Resource.Status.SUCCESS ||
@@ -217,7 +211,7 @@ public class SerieDetailsActivity extends AppCompatActivity implements Observer<
      * Setup a live data for network status.
      */
     private void setupNetworkStatus() {
-        LiveData<Boolean> networkData = new ConnectionLiveData(this);
+        LiveData<Boolean> networkData = ConnectionLiveData.newInstance(this);
         networkData.observe(this, this);
     }
 

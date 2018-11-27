@@ -16,7 +16,7 @@
         android:gravity="center"
         android:padding="16dp"/>
 
-    <com.andreapetreti.android_utils.ui.ColorSwipeRefreshLayout
+    <com.andreapetreti.androidcommonutils.view.ColorSwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swiperefresh"
         android:layout_width="match_parent"
@@ -24,10 +24,10 @@
         app:color1="@color/secondaryColor"
         app:color2="@color/primaryColor">
 
-        <com.andreapetreti.android_utils.adapter.EmptyRecyclerView
+        <com.andreapetreti.androidcommonutils.view.EmptyRecyclerView
             android:id="@+id/recyclerViewSeries"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </com.andreapetreti.android_utils.ui.ColorSwipeRefreshLayout>
+    </com.andreapetreti.androidcommonutils.view.ColorSwipeRefreshLayout>
 </FrameLayout>

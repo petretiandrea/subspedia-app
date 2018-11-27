@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
-import com.andreapetreti.android_utils.notification.NotificationHelper;
+import com.andreapetreti.androidcommonutils.notification.NotificationHelper;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.model.SubtitleWithSerie;
 import com.annimon.stream.Collectors;

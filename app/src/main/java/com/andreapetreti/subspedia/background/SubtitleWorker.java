@@ -4,14 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.andreapetreti.android_utils.TimeValue;
-import com.andreapetreti.subspedia.Constants;
+import com.andreapetreti.androidcommonutils.common.TimeValue;
 import com.andreapetreti.subspedia.R;
 
-import java.util.concurrent.TimeUnit;
-
 import androidx.work.Constraints;
-import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;

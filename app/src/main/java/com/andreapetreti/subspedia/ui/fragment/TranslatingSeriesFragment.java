@@ -1,21 +1,13 @@
 package com.andreapetreti.subspedia.ui.fragment;
 
 
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-import android.os.Bundle;
 import android.app.Fragment;
-import androidx.annotation.Nullable;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.andreapetreti.android_utils.adapter.EmptyRecyclerView;
+import com.andreapetreti.androidcommonutils.view.EmptyRecyclerView;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.ui.SerieDetailsActivity;
@@ -23,6 +15,12 @@ import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.ui.custom.EmptyView;
 import com.andreapetreti.subspedia.viewmodel.SerieTranslatingViewModel;
 import com.annimon.stream.Objects;
+
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 /**
  * A simple {@link Fragment} subclass.

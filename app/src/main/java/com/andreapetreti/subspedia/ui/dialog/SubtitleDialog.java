@@ -2,11 +2,6 @@ package com.andreapetreti.subspedia.ui.dialog;
 
 import android.app.Dialog;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,9 +13,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.andreapetreti.android_utils.PicassoSingleton;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.model.SubtitleWithSerie;
+import com.andreapetreti.subspedia.utils.PicassoSingleton;
 import com.andreapetreti.subspedia.utils.SubspediaUtils;
 
 import java.util.Date;
@@ -54,7 +49,7 @@ public class SubtitleDialog extends AppCompatDialogFragment {
         View dialogView = View.inflate(getActivity(), R.layout.dialog_subtitle, null);
 
         ImageView thub = dialogView.findViewById(R.id.thub);
-        PicassoSingleton.getSharedInstance(getContext()).load(mSubtitle.getSubtitle().getSubtitleImage()).into(thub);
+        PicassoSingleton.getInstance(getContext()).load(mSubtitle.getSubtitle().getSubtitleImage()).into(thub);
 
         TextView title = dialogView.findViewById(R.id.title);
         title.setText(String.format(Locale.getDefault(),

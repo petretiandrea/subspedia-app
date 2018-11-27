@@ -2,18 +2,8 @@ package com.andreapetreti.subspedia.ui.fragment;
 
 import android.animation.Animator;
 import android.app.SearchManager;
-
-import androidx.core.view.MenuItemCompat;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.os.Build;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.appcompat.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,11 +12,19 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 
-import com.andreapetreti.android_utils.adapter.EmptyRecyclerView;
+import com.andreapetreti.androidcommonutils.view.EmptyRecyclerView;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
+
+import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import static android.content.Context.SEARCH_SERVICE;
 

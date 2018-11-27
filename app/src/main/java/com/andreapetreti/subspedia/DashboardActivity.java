@@ -1,55 +1,40 @@
 package com.andreapetreti.subspedia;
 
 import android.Manifest;
-
-import androidx.appcompat.widget.SearchView;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModelProviders;
-
-import android.app.SearchManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-
-import com.andreapetreti.subspedia.background.SubtitleWorker;
-import com.andreapetreti.subspedia.utils.SubspediaUtils;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.ContextCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
-
-import com.andreapetreti.android_utils.connectivity.ConnectionLiveData;
-import com.andreapetreti.subspedia.background.NewSubsWorker;
+import com.andreapetreti.androidcommonutils.connectivity.ConnectionLiveData;
+import com.andreapetreti.androidcommonutils.picasso.PicassoBuilderExtended;
+import com.andreapetreti.subspedia.background.SubtitleWorker;
 import com.andreapetreti.subspedia.common.Resource;
 import com.andreapetreti.subspedia.ui.fragment.AllSeriesFragment;
 import com.andreapetreti.subspedia.ui.fragment.FavoriteSeriesFragment;
 import com.andreapetreti.subspedia.ui.fragment.LastSubtitlesFragment;
 import com.andreapetreti.subspedia.ui.fragment.TranslatingSeriesFragment;
 import com.andreapetreti.subspedia.viewmodel.SeriesViewModel;
+import com.annimon.stream.Objects;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.Map;
-import com.annimon.stream.Objects;
-import java.util.concurrent.TimeUnit;
 
-import androidx.work.Constraints;
-import androidx.work.Data;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -146,7 +131,7 @@ public class DashboardActivity extends AppCompatActivity {
      * - When there is connection, disable the banner no connection
      */
     private void setupNetworkLiveData() {
-        LiveData<Boolean> networkData = new ConnectionLiveData(this);
+        LiveData<Boolean> networkData = ConnectionLiveData.newInstance(this);
         networkData.observe(this, connected -> {
 
             /* Set visibility of connection banner */

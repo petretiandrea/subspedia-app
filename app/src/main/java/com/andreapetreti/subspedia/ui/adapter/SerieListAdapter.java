@@ -14,10 +14,10 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.andreapetreti.android_utils.PicassoSingleton;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.SerieTranslating;
+import com.andreapetreti.subspedia.utils.PicassoSingleton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +76,8 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
         if(mSerieFilteredList != null) {
             // extended for translating series
             Serie serie = mSerieFilteredList.get(i);
-            PicassoSingleton.getSharedInstance(mInflater.getContext()).load(serie.getLinkImage())
+            PicassoSingleton.getInstance(mInflater.getContext())
+                    .load(serie.getLinkImage())
                     .fit()
                     .placeholder(R.drawable.placeholder_series)
                     .centerCrop(Gravity.CENTER)

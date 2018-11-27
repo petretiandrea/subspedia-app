@@ -5,9 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -15,23 +12,14 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
 import android.preference.SwitchPreference;
-import android.text.TextUtils;
 import android.view.MenuItem;
 
-import com.andreapetreti.android_utils.TimeValue;
+import com.andreapetreti.androidcommonutils.common.TimeValue;
 import com.andreapetreti.subspedia.background.SubtitleWorker;
-import com.andreapetreti.subspedia.model.Subtitle;
-import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.annimon.stream.Objects;
 
-import java.sql.Time;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
