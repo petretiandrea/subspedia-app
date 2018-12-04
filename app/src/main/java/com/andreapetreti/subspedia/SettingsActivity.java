@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import com.andreapetreti.androidcommonutils.common.TimeValue;
 import com.andreapetreti.subspedia.background.SubtitleWorker;
 import com.annimon.stream.Objects;
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 
 import androidx.appcompat.app.ActionBar;
 
@@ -174,6 +175,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             SwitchPreference switchPreference = (SwitchPreference) findPreference(getString(R.string.key_settings_notification));
 
             bindPreferenceSummaryToValue(findPreference(getString(R.string.key_interval_settings)));
+
+            findPreference("open_source_licenses_title").setOnPreferenceClickListener(preference -> {
+                OssLicensesMenuActivity.setActivityTitle(getString(R.string.open_source_licenses_title));
+                startActivity(new Intent(getActivity(), OssLicensesMenuActivity.class));
+                return true;
+            });
         }
 
         @Override

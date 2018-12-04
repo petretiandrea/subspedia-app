@@ -62,4 +62,7 @@
     <string name="interval_five_hour">5 ore</string>
     <string name="key_interval_settings">key_interval_settings</string>
     <string name="summary_interval_settings">Intervallo per il controllo di nuovi sottotitoli. [%1$s]</string>
+
+
+    <string name="open_source_licenses_title">Open Source Licenses</string>
 </resources>

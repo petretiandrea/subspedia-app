@@ -29,6 +29,7 @@
         <Preference android:title="@string/terms_condition">
             <intent android:action="android.intent.action.VIEW" android:data="@string/url_terms_cond" />
         </Preference>
+        <Preference android:key="open_source_licenses_title" android:title="@string/open_source_licenses_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>
