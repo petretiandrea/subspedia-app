@@ -24,10 +24,17 @@
         app:color1="@color/secondaryColor"
         app:color2="@color/primaryColor">
 
-        <com.andreapetreti.androidcommonutils.view.EmptyRecyclerView
+        <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/recyclerViewSeries"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            app:fastScrollAutoHide="true"
+            app:fastScrollThumbInactiveColor="@color/secondaryColor"
+            app:fastScrollPopupBgColor="@color/secondaryColor"
+            app:fastScrollPopupTextColor="@android:color/white"
+            app:fastScrollThumbColor="@color/secondaryColor"/>
 
     </com.andreapetreti.androidcommonutils.view.ColorSwipeRefreshLayout>
 </FrameLayout>

@@ -32,6 +32,7 @@ import com.annimon.stream.Stream;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -69,21 +70,6 @@ public class SubspediaUtils {
         downloadManager.enqueue(request);
     }
 
-    public static Optional<Date> parseDateToUTC(String format, String source) {
-        try {
-            SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat(format, Locale.getDefault());
-            System.out.println(simpleDateFormat2.parse(source));
-
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, Locale.getDefault());
-            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            System.out.println(simpleDateFormat.parse(source));
-
-            return Optional.of(simpleDateFormat.parse(source));
-        } catch (ParseException e) {
-            return Optional.empty();
-        }
-    }
-
     public static Optional<Date> parseDate(String format, String source) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(format, Locale.getDefault());
         try {
@@ -96,5 +82,22 @@ public class SubspediaUtils {
     public static String formatToDefaultDate(Date date) {
         return new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                 .format(date);
+    }
+
+    /**
+     * Check if difference between current UTC time and last UTC time, is greater than threshold.
+     * @param lastUTCMillis
+     * @param thresholdMillis Threshold time in milliseconds.
+     * @return True if difference is greater than {thresholdMillis}.
+     */
+    public static boolean checkTimeDifference(long lastUTCMillis, long thresholdMillis) {
+        long current = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
+        long difference = Math.abs(current - lastUTCMillis);
+
+        return difference > thresholdMillis;
+    }
+
+    public static long currentTimeUTCMillis() {
+        return Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
     }
 }

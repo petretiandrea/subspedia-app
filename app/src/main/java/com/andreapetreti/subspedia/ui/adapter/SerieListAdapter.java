@@ -18,12 +18,14 @@ import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.model.SerieTranslating;
 import com.andreapetreti.subspedia.utils.PicassoSingleton;
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
-public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.SerieViewHolder> implements Filterable {
+public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.SerieViewHolder> implements Filterable, FastScrollRecyclerView.SectionedAdapter {
 
     private static final int TYPE_SERIE = 0;
     private static final int TYPE_TRANSLATING_SERIE = 1;
@@ -143,6 +145,15 @@ public class SerieListAdapter extends RecyclerView.Adapter<SerieListAdapter.Seri
                 notifyDataSetChanged();
             }
         };
+    }
+
+    @NonNull
+    @Override
+    public String getSectionName(int position) {
+        if(com.annimon.stream.Objects.nonNull(mSerieFilteredList)) {
+            return mSerieFilteredList.get(position).getName().substring(0, 1);
+        }
+        return "";
     }
 
 

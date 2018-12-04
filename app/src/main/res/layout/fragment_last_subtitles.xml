@@ -26,6 +26,8 @@
 
         <com.andreapetreti.androidcommonutils.view.EmptyRecyclerView
             android:id="@+id/recyclerViewSubs"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </com.andreapetreti.androidcommonutils.view.ColorSwipeRefreshLayout>

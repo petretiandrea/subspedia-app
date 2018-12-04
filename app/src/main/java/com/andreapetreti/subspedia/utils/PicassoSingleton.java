@@ -12,7 +12,7 @@ public final class PicassoSingleton {
     private static Picasso mInstance;
 
     public static Picasso getInstance(Context context) {
-        if(Objects.nonNull(mInstance)) {
+        if(Objects.isNull(mInstance)) {
             if(Objects.nonNull(context)) {
                 mInstance = new PicassoBuilderExtended(context)
                         .setDiskCacheSize("picasso_disk_cache", 10 * 1024 * 1024) // 10 mb of disk cache.

@@ -41,6 +41,7 @@ public class AllSeriesFragment extends SeriesFragment {
         mEmptyView = Objects.requireNonNull(rootView).findViewById(R.id.emptyView);
         mEmptyView.setTitle(getString(R.string.empty_list_series_title));
         mEmptyView.setContent(getString(R.string.empty_list_series_content));
+
         setupAllSeries(getSeriesViewModel());
     }
 

@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 
-import com.andreapetreti.androidcommonutils.view.EmptyRecyclerView;
 import com.andreapetreti.subspedia.R;
 import com.andreapetreti.subspedia.model.Serie;
 import com.andreapetreti.subspedia.ui.adapter.SerieListAdapter;
@@ -24,6 +23,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import static android.content.Context.SEARCH_SERVICE;
@@ -38,7 +38,7 @@ public abstract class SeriesFragment extends Fragment {
      */
     private SwipeRefreshLayout mRefreshLayout;
     private SeriesViewModel mSeriesViewModel;
-    private EmptyRecyclerView recyclerView;
+    private RecyclerView recyclerView;
 
     public SeriesFragment() {
         // Required empty public constructor
@@ -82,7 +82,7 @@ public abstract class SeriesFragment extends Fragment {
         return mSerieListAdapter;
     }
 
-    protected EmptyRecyclerView getRecyclerView() {
+    protected RecyclerView getRecyclerView() {
         return recyclerView;
     }
 

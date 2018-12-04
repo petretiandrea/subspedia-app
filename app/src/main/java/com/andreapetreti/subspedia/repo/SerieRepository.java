@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.andreapetreti.android_utils.Utils;
 import com.andreapetreti.subspedia.AppExecutor;
 import com.andreapetreti.subspedia.common.ApiResponse;
 import com.andreapetreti.subspedia.cache.NetworkBoundResource;
@@ -17,6 +16,7 @@ import com.andreapetreti.subspedia.common.SubspediaService;
 import com.andreapetreti.subspedia.database.SerieDao;
 import com.andreapetreti.subspedia.database.SubsDatabase;
 import com.andreapetreti.subspedia.model.Serie;
+import com.andreapetreti.subspedia.utils.SubspediaUtils;
 import com.annimon.stream.Collectors;
 import com.annimon.stream.Stream;
 import com.google.gson.JsonObject;
@@ -82,7 +82,7 @@ public class SerieRepository {
             protected boolean shouldFetch(@Nullable List<Serie> data) {
                 // Get current time
                 long last = mSharedPreferences.getLong(SERIE_LAST_UPDATE, 0);
-                boolean needUpdate = Utils.checkTimeDifference(last, THRESHOLD_UPDATE);
+                boolean needUpdate = SubspediaUtils.checkTimeDifference(last, THRESHOLD_UPDATE);
                 return data == null || data.isEmpty() || needUpdate || forceFetch;
             }
 
@@ -101,7 +101,7 @@ public class SerieRepository {
                     @Override
                     public void onResponse(Call<List<Serie>> call, Response<List<Serie>> response) {
                         if(response.isSuccessful() && response.body() != null)
-                            mSharedPreferences.edit().putLong(SERIE_LAST_UPDATE, Utils.currentTimeUTCMillis()).apply();
+                            mSharedPreferences.edit().putLong(SERIE_LAST_UPDATE, SubspediaUtils.currentTimeUTCMillis()).apply();
                         liveData.postValue(new ApiResponse<>(response));
                     }
 
